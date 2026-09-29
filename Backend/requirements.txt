@@ -1,0 +1,21 @@
+# Versiones fijadas a partir de la instalación verificada el 2026-09-29 (Python 3.14.7).
+# Para actualizar: cambiar la versión, correr pytest, ruff y lint-imports, y commitear.
+
+# --- Runtime ---
+fastapi==0.142.0
+uvicorn[standard]==0.54.0
+sqlalchemy==2.1.1
+psycopg[binary]==3.3.6
+alembic==1.20.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
+
+# --- Auth (se usan desde la Fase B6) ---
+argon2-cffi==25.1.0
+pyjwt==2.15.1
+
+# --- Desarrollo y tests ---
+pytest==9.1.1
+httpx==0.28.1
+ruff==0.16.9
+import-linter==2.15

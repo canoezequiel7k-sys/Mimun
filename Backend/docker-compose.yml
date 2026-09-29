@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: mimun_db
+    environment:
+      POSTGRES_USER: mimun
+      POSTGRES_PASSWORD: mimun
+      POSTGRES_DB: mimun
+    ports:
+      - "5432:5432"
+    volumes:
+      - mimun_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mimun -d mimun"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  mimun_pgdata:

@@ -1,0 +1,51 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "integration: requiere PostgreSQL levantado (docker compose up -d db)",
+]
+
+# ---------------------------------------------------------------------------
+# Clean Architecture: la dependencia apunta siempre hacia `domain`.
+# Se verifica con:  lint-imports
+# ---------------------------------------------------------------------------
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+exclude_type_checking_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Regla de dependencia entre capas"
+type = "layers"
+layers = [
+    "app.presentation | app.infrastructure",
+    "app.application",
+    "app.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "domain y application no dependen de frameworks ni de librerias de infraestructura"
+type = "forbidden"
+source_modules = [
+    "app.domain",
+    "app.application",
+]
+forbidden_modules = [
+    "fastapi",
+    "starlette",
+    "pydantic",
+    "pydantic_settings",
+    "sqlalchemy",
+    "alembic",
+    "psycopg",
+    "argon2",
+    "jwt",
+    "httpx",
+]

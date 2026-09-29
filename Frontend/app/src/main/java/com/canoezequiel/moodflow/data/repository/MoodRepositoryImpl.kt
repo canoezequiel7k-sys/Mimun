@@ -3,14 +3,20 @@ package com.canoezequiel.moodflow.data.repository
 import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.R
 import com.canoezequiel.moodflow.domain.model.Mood
+import com.canoezequiel.moodflow.domain.model.MoodEntry
+import com.canoezequiel.moodflow.domain.model.MoodType
 import com.canoezequiel.moodflow.domain.repository.MoodRepository
+import java.time.LocalDateTime
 
 class MoodRepositoryImpl : MoodRepository {
-    override fun getModel(): List<Mood> {
+    //Almacenamiento en memoria para entradas
+    private val entries = mutableListOf<MoodEntry>()
+
+    override fun getAvailableMoods(): List<Mood> {
         return listOf(
-            // 1. RAD (5 frames)
+            //RAD (5 frames)
             Mood(
-                id = "1",
+                id = MoodType.RAD.name,
                 name = "rad",
                 iconRes = R.drawable.rad1,
                 frames = listOf(
@@ -23,9 +29,9 @@ class MoodRepositoryImpl : MoodRepository {
                 colorHex = "#4CAF50"
             ),
 
-            // 2. GOOD (6 frames)
+            //GOOD (6 frames)
             Mood(
-                id = "2",
+                id = MoodType.GOOD.name,
                 name = "good",
                 iconRes = R.drawable.good5,
                 frames = listOf(
@@ -40,9 +46,9 @@ class MoodRepositoryImpl : MoodRepository {
                 iconSize = 68.dp
             ),
 
-            // 3. MEH (Pendiente de agregar frames)
+            //MEH (Pendiente de agregar frames)
             Mood(
-                id = "3",
+                id = MoodType.MEH.name,
                 name = "meh",
                 iconRes = R.drawable.meh1, // Reemplazar cuando tengas sus drawables
                 frames = listOf(
@@ -56,9 +62,9 @@ class MoodRepositoryImpl : MoodRepository {
                 colorHex = "#FFC107"
             ),
 
-            // 4. BAD (Pendiente de agregar frames)
+            //Bad(Pendiente de agregar frames)
             Mood(
-                id = "4",
+                id = MoodType.BAD.name,
                 name = "bad",
                 iconRes = R.drawable.bad2, // Reemplazar cuando tengas sus drawables
                 frames = listOf(
@@ -72,9 +78,9 @@ class MoodRepositoryImpl : MoodRepository {
                 colorHex = "#FF9800"
             ),
 
-            // 5. AWFUL (Pendiente de agregar frames)
+            //AWFUL (Pendiente de agregar frames)
             Mood(
-                id = "5",
+                id = MoodType.AWFUL.name,
                 name = "awful",
                 iconRes = R.drawable.awful3, // Reemplazar cuando tengas sus drawables
                 frames = listOf(
@@ -89,4 +95,20 @@ class MoodRepositoryImpl : MoodRepository {
             )
         )
     }
+
+    override fun saveMoodEntry(entry: MoodEntry) {
+        //Remplazar la entrada de hoy si ya existe
+        entries.removeAll{ it.timestamp.toLocalDate() == entry.timestamp.toLocalDate() }
+        entries.add(entry)
+    }
+
+    override fun getTodayMoodEntry(): MoodEntry? {
+        val today = LocalDateTime.now()
+        return entries.find { it.timestamp.toLocalDate() == today }
+    }
+
+    override fun getAllMoodEntries(): List<MoodEntry> {
+        return entries.toList()
+    }
+
 }

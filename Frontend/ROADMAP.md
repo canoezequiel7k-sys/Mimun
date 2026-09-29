@@ -15,11 +15,11 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 - [x] Proyecto Android con Jetpack Compose y Material 3.
 - [x] Estructura de paquetes base (`core/`, `feature/`).
 - [ ] Tema visual definido (colores, tipografía, formas).
-- [ ] Navegación principal con barra inferior: **Notes · Mood · Analytics**.
-- [ ] Contenedor común de navegación (no cada pantalla por separado).
-- [ ] Componentes base reutilizables en `core/ui/components/`.
+- [x] Navegación principal con barra inferior: **Notes · Mood · Analytics**.
+- [x] Contenedor común de navegación (no cada pantalla por separado).
+- [x] Componentes base reutilizables en `core/ui/components/`.
 - [ ] Inyección de dependencias configurada (Hilt).
-- [ ] `Frontend/README.md` con la guía de paquetes y convenciones.
+- [x] `Frontend/README.md` con la guía de paquetes y convenciones.
 
 **Terminada cuando:** se puede navegar entre las tres secciones y todas comparten el tema.
 
@@ -31,15 +31,15 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
-- [ ] Enum `Mood` en `domain` (`RAD, GOOD, NORMAL, MEH, BAD, AWFUL`), con los nombres exactos del README raíz.
-- [ ] Modelo `MoodEntry` en `domain`.
-- [ ] Interfaz `MoodRepository` en `domain`.
-- [ ] Implementación fake del repositorio.
-- [ ] Personajes circulares de los 6 estados (expresiones distintas).
-- [ ] Animaciones de cambio de expresión.
-- [ ] Selector de emociones.
-- [ ] Pantalla de registro diario (estado + nota corta opcional).
-- [ ] `MoodViewModel` con `UiState` expuesto por `StateFlow`.
+- [x] Enum `Mood` en `domain` (`RAD, GOOD, NORMAL, MEH, BAD, AWFUL`), con los nombres exactos del README raíz.
+- [x] Modelo `MoodEntry` en `domain`.
+- [x] Interfaz `MoodRepository` en `domain`.
+- [x] Implementación fake del repositorio.
+- [x] Personajes circulares de los 6 estados (expresiones distintas).
+- [x] Animaciones de cambio de expresión.
+- [x] Selector de emociones.
+- [x] Pantalla de registro diario (estado + nota corta opcional).
+- [x] `MoodViewModel` con `UiState` expuesto por `StateFlow`.
 - [ ] Use cases: registrar estado, obtener registro del día.
 - [ ] Previews de Compose para cada estado.
 

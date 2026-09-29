@@ -10,6 +10,6 @@ class GetMoodsUseCase(
 ){
     //Operador invoke permite invocar el caso de uso como si fuera una funcion
     operator fun invoke(): List<Mood> {
-        return repository.getModel()
+        return repository.getAvailableMoods()
     }
 }

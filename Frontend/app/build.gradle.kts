@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.canoezequiel.moodflow"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.canoezequiel.moodflow"
@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -3,11 +3,24 @@ package com.canoezequiel.moodflow.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import com.canoezequiel.moodflow.data.repository.MoodRepositoryImpl
 import com.canoezequiel.moodflow.domain.model.Mood
+import com.canoezequiel.moodflow.domain.model.MoodEntry
+import com.canoezequiel.moodflow.domain.model.MoodType
 import com.canoezequiel.moodflow.domain.usecase.GetMoodsUseCase
+import com.canoezequiel.moodflow.domain.usecase.GetTodayMoodEntryUseCase
+import com.canoezequiel.moodflow.domain.usecase.SaveMoodEntryUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
+
+data class MoodUiState(
+    val moods: List<Mood> = emptyList(),
+    val selectedMood: Mood? = null,
+    val noteText: String = "",
+    val todayEntry: MoodEntry? = null,
+    val showSuccessMessage: Boolean = false
+)
 
 //ViewModel encagado de administrar el estado de la interfaz y la logica de seleccion
 class MoodViewModel : ViewModel() {
@@ -15,18 +28,49 @@ class MoodViewModel : ViewModel() {
     //Instancia del repositorio y caso de uso(Sin DI por ahora, para mantenerlo simple)
     private val repository = MoodRepositoryImpl()
     private val getMoodsUseCase = GetMoodsUseCase(repository)
+    private val saveMoodEntryUseCase = SaveMoodEntryUseCase(repository)
+    private val getTodayMoodEntryUseCase = GetTodayMoodEntryUseCase(repository)
 
-    //Lista inmutable de humores expuesta a la UI
-    val moods: List<Mood> = getMoodsUseCase()
+    //Leemos el estado de la ui
+    private val _uiState = MutableStateFlow(
+        MoodUiState(
+            moods = getMoodsUseCase(),
+            todayEntry = getTodayMoodEntryUseCase()
+        )
+    )
 
-    //Estado interno mutable para el humo seleccionado
-    private val _selectedMood = MutableStateFlow<Mood?>(null)
+//    Lista inmutable de humores expuesta a la UI
+//    val moods: List<Mood> = getMoodsUseCase()
+    val uiState: StateFlow<MoodUiState> = _uiState.asStateFlow()
 
-    //Estado inmutable observable por la UI mediante StateFlow
-    val selectedMood: StateFlow<Mood?> = _selectedMood.asStateFlow()
+    fun selectMood(mood: Mood) {
+        _uiState.update { it.copy(selectedMood = mood, showSuccessMessage = false) }
+    }
 
-    //Accion para actualizar el humor seleccionado
-    fun selectMood(mood: Mood){
-        _selectedMood.value = mood
+    fun updateNoteText(note: String){
+        _uiState.update { it.copy(noteText = note) }
+    }
+
+    fun saveTodayMood() {
+        val selected = _uiState.value.selectedMood ?: return
+        val moodType = try {
+            MoodType.valueOf(selected.id)
+        } catch (e: Exception) {
+            MoodType.GOOD
+        }
+
+        val entry = MoodEntry(
+            moodType = moodType,
+            note = _uiState.value.noteText.ifBlank { null }
+        )
+
+        saveMoodEntryUseCase(entry)
+
+        _uiState.update {
+            it.copy(
+                todayEntry = entry,
+                showSuccessMessage = true
+            )
+        }
     }
 }

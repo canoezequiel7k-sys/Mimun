@@ -23,15 +23,6 @@ fun MoodSelectionScreen(
             TopAppBar(
                 title = { Text("How are you?") }
             )
-        },
-        bottomBar = {
-            MoodBottomBar {
-                //Acción del botón central "+"
-            }
-            MoodBottomBar {
-                //Acción del botón central "+"
-            }
-
         }
     ) { innerPadding ->
         Column(

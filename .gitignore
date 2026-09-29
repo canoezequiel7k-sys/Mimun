@@ -1,0 +1,31 @@
+# Secretos
+.env
+*.env
+!.env.example
+*.jks
+*.keystore
+google-services.json
+
+# Android
+local.properties
+.gradle/
+build/
+*.apk
+*.aab
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Sistema
+.DS_Store
+Thumbs.db

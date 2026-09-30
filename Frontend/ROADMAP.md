@@ -65,15 +65,15 @@ Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
 ## Fase F4 — Persistencia local (Room) ⚪
 
-- [ ] Configurar Room.
-- [ ] Entidades `MoodEntryEntity` y `JournalEntryEntity`.
-- [ ] DAOs.
-- [ ] `AppDatabase` y migraciones de Room.
-- [ ] Mappers entidad ↔ dominio.
-- [ ] Reemplazar repositorios fake por implementaciones con Room.
-- [ ] IDs en formato UUID desde el cliente. 🔗
-- [ ] Campo de control de sincronización (ej.: `syncStatus`, `updatedAt`) previendo la Fase F7. 🔗
-- [ ] Tests de DAO y de repositorio.
+- [x] Configurar Room.
+- [x] Entidades `MoodEntryEntity` y `JournalEntryEntity`.
+- [x] DAOs.
+- [x] `AppDatabase` y migraciones de Room.
+- [x] Mappers entidad ↔ dominio.
+- [x] Reemplazar repositorios fake por implementaciones con Room.
+- [x] IDs en formato UUID desde el cliente. 🔗
+- [x] Campo de control de sincronización (ej.: `syncStatus`, `updatedAt`) previendo la Fase F7. 🔗
+- [x] Tests de DAO y de repositorio.
 
 **Terminada cuando:** los datos persisten entre cierres de la app y la UI no cambió al reemplazar los fakes.
 

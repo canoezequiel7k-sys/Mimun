@@ -1,6 +1,8 @@
 package com.canoezequiel.moodflow.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.canoezequiel.moodflow.MoodApplication
+import com.canoezequiel.moodflow.data.local.database.AppDatabase
 import com.canoezequiel.moodflow.data.repository.MoodRepositoryImpl
 import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
@@ -26,7 +28,9 @@ data class MoodUiState(
 class MoodViewModel : ViewModel() {
 
     //Instancia del repositorio y caso de uso(Sin DI por ahora, para mantenerlo simple)
-    private val repository = MoodRepositoryImpl()
+    private val repository = MoodRepositoryImpl(
+        AppDatabase.getInstance(MoodApplication.context).moodEntryDao()
+    )
 
     //Conexion con capa de dominio
     private val getMoodsUseCase = GetMoodsUseCase(repository)

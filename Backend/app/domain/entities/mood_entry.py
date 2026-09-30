@@ -42,7 +42,11 @@ class MoodEntry:
         )
 
     def update(self, *, mood: MoodType, note: str | None, now: dt.datetime) -> None:
-        """Reemplaza `mood` y `note`. La `date` es inmutable."""
+        """Reemplaza `mood` y `note`. La `date` es inmutable.
+
+        Valida antes de asignar: si falla, la entidad queda intacta.
+        """
+        normalized_note = normalize_optional_text(note, field="note", max_length=MAX_NOTE_LENGTH)
         self.mood = mood
-        self.note = normalize_optional_text(note, field="note", max_length=MAX_NOTE_LENGTH)
+        self.note = normalized_note
         self.updated_at = now

@@ -49,3 +49,6 @@ forbidden_modules = [
     "jwt",
     "httpx",
 ]
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]

@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from app.container import Container
 from app.infrastructure.config import get_settings
+from app.presentation.api.error_handlers import register_error_handlers
 from app.presentation.api.router import api_router
 
 
@@ -26,6 +27,7 @@ def create_app() -> FastAPI:
         docs_url=None if is_production else "/docs",
         redoc_url=None if is_production else "/redoc",
     )
+    register_error_handlers(app)
     app.include_router(api_router)
     return app
 

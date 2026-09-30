@@ -51,10 +51,17 @@ class JournalEntry:
         content: str,
         now: dt.datetime,
     ) -> None:
-        """Reemplazo completo de los campos editables."""
-        self.mood_entry_id = mood_entry_id
-        self.title = normalize_optional_text(title, field="title", max_length=MAX_TITLE_LENGTH)
-        self.content = normalize_required_text(
+        """Reemplazo completo de los campos editables.
+
+        Valida antes de asignar: si falla, la entidad queda intacta.
+        """
+        normalized_title = normalize_optional_text(
+            title, field="title", max_length=MAX_TITLE_LENGTH
+        )
+        normalized_content = normalize_required_text(
             content, field="content", max_length=MAX_CONTENT_LENGTH
         )
+        self.mood_entry_id = mood_entry_id
+        self.title = normalized_title
+        self.content = normalized_content
         self.updated_at = now

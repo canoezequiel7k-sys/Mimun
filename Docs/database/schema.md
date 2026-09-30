@@ -88,10 +88,24 @@ Restricciones e índices:
 
 ---
 
+## `refresh_tokens`
+
+| Columna | Tipo | Restricciones |
+|---|---|---|
+| `id` | `uuid` | PK |
+| `user_id` | `uuid` | `NOT NULL`, FK → `users.id` `ON DELETE CASCADE` |
+| `token_hash` | `text` | `NOT NULL`, `UNIQUE`. Hash SHA-256 del token; el token en sí nunca se guarda. |
+| `expires_at` | `timestamptz` | `NOT NULL` |
+| `revoked_at` | `timestamptz` | Nulable. Se completa al usarlo (rotación) o al cerrar sesión. |
+| `created_at` | `timestamptz` | `NOT NULL`, default `now()` |
+
+Índice: `(user_id)`. Migración `0002`.
+
+---
+
 ## Pendiente para fases posteriores
 
 | Tema | Fase |
 |---|---|
 | Borrado lógico (`deleted_at`) en `mood_entries` y `journal_entries` | B7 |
-| Tabla de refresh tokens (revocación) | B6 |
 | Campos para sincronización (`updated_since`) | B7 |

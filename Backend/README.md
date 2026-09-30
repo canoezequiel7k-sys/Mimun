@@ -9,13 +9,11 @@ API REST de Mimun, hecha con **Python + FastAPI + PostgreSQL**, siguiendo **Clea
 
 ## 📍 Estado actual
 
-🟡 **Fase B1 (setup del proyecto) en curso.** B0 está cerrada: contrato, modelo de datos y decisiones en `Docs/`.
+🟡 **Fases B0 a B4 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries` (65 tests en verde, migración `0001` aplicada). **Fase B6 (autenticación) en curso.**
 
-**Existe:** el esqueleto del proyecto (las cuatro capas, configuración con `pydantic-settings`, composition root, `GET /api/v1/health`, tests y contratos de `import-linter`).
+Hoy la API puede correr **sin autenticación real**: con `AUTH_ENABLED=false` usa un usuario fijo de desarrollo. En producción `AUTH_ENABLED=true` es obligatorio.
 
-**No existe todavía:** entidades, casos de uso, modelos SQLAlchemy, migraciones ni endpoints de negocio. La estructura de abajo es la arquitectura objetivo: las subcarpetas de `domain/`, `application/use_cases/` y `infrastructure/repositories/` se crean en B2 y B3.
-
-**Sin verificar:** el código de B1 está escrito pero todavía no se ejecutó.
+**Pendiente:** estadísticas (B5, opcional), sincronización (B7), calidad (B8) y deploy (B9). Falta validar los endpoints desde la app Android (F6).
 
 > Actualizar esta sección cuando cambie el estado real.
 
@@ -79,7 +77,8 @@ Reglas de la arquitectura:
 - **Un caso de uso = una clase con un método `execute`** y una sola responsabilidad (`CreateMoodEntry`, `ListMoodEntries`…).
 - Las **entidades de dominio** son dataclasses puras. No son modelos SQLAlchemy ni schemas Pydantic: se convierten con mappers en `infrastructure` y en `presentation`.
 - Las **interfaces de repositorio** (`Protocol`) viven en `domain`. Sus implementaciones, en `infrastructure`.
-- Toda operación de repositorio recibe `user_id`: cada usuario solo accede a **sus propios datos**.
+- Toda operación de repositorio de datos recibe `user_id`: cada usuario solo accede a **sus propios datos**.
+- Cada operación de escritura de un repositorio es una transacción (`commit` por operación), y allí mismo se traducen los errores de integridad a errores de dominio.
 - Las **reglas de negocio** (ej.: un registro por día) viven en `domain` y `application`, nunca en routers ni en repositorios.
 - Los **errores de dominio** (`MoodEntryAlreadyExistsError`, `NotFoundError`…) se traducen a HTTP **solo** en `presentation`.
 - Los tests de `application` usan **repositorios fake en memoria**, sin base de datos.
@@ -98,13 +97,12 @@ Backend/
 │   │   ├── repositories/          # Interfaces (Protocol)
 │   │   └── errors.py              # Errores de dominio
 │   ├── application/
-│   │   ├── ports/                 # PasswordHasher, TokenProvider, Clock
-│   │   ├── dto/                   # Commands y results
-│   │   └── use_cases/
-│   │       ├── auth/
-│   │       ├── mood_entries/
-│   │       ├── journal_entries/
-│   │       └── stats/
+│   │   ├── ports/                 # Clock, PasswordHasher, TokenService
+│   │   └── use_cases/             # Un módulo por recurso
+│   │       ├── mood_entries.py
+│   │       ├── journal_entries.py
+│   │       ├── auth.py            # B6
+│   │       └── stats.py           # B5 (opcional)
 │   ├── infrastructure/
 │   │   ├── config.py              # Settings desde variables de entorno
 │   │   ├── db/
@@ -187,7 +185,8 @@ El contrato oficial está en [`../Docs/api/`](../Docs/api/README.md):
 |---|---|---|
 | `POST` | `/auth/register` | No |
 | `POST` | `/auth/login` | No |
-| `POST` | `/auth/refresh` | Refresh token |
+| `POST` | `/auth/refresh` | No (envía el refresh token) |
+| `POST` | `/auth/logout` | No (envía el refresh token) |
 | `GET` | `/mood-entries` | Sí |
 | `POST` | `/mood-entries` | Sí |
 | `GET` | `/mood-entries/{id}` | Sí |

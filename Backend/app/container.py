@@ -13,11 +13,15 @@ from sqlalchemy import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.application.use_cases.journal_entries import JournalEntryUseCases
 from app.application.use_cases.mood_entries import MoodEntryUseCases
 from app.domain.entities import User
 from app.infrastructure.clock import SystemClock
 from app.infrastructure.config import Settings
 from app.infrastructure.db.session import build_engine, build_session_factory
+from app.infrastructure.repositories.journal_entry_repository import (
+    SqlAlchemyJournalEntryRepository,
+)
 from app.infrastructure.repositories.mood_entry_repository import SqlAlchemyMoodEntryRepository
 from app.infrastructure.repositories.user_repository import SqlAlchemyUserRepository
 
@@ -51,6 +55,16 @@ class Container:
         with self.session_factory() as session:
             repository = SqlAlchemyMoodEntryRepository(session)
             yield MoodEntryUseCases.build(repository, self._clock)
+
+    @contextmanager
+    def journal_entry_use_cases(self) -> Iterator[JournalEntryUseCases]:
+        """Una sesión por request, compartida por ambos repositorios."""
+        with self.session_factory() as session:
+            yield JournalEntryUseCases.build(
+                SqlAlchemyJournalEntryRepository(session),
+                SqlAlchemyMoodEntryRepository(session),
+                self._clock,
+            )
 
     def dev_user_id(self) -> UUID:
         """Usuario de desarrollo (se crea la primera vez). Nunca en producción."""

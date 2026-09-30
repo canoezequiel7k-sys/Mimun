@@ -8,7 +8,7 @@ Fuente de verdad de la API REST. **El backend implementa lo que dice acá y el F
 |---|---|
 | Registros emocionales | [mood-entries.md](./mood-entries.md) |
 | Reflexiones | [journal-entries.md](./journal-entries.md) |
-| Autenticación | ⚪ se documenta en la Fase B6 |
+| Autenticación | [auth.md](./auth.md) |
 | Estadísticas | ⚪ se documenta en la Fase B5 |
 
 ---
@@ -65,6 +65,7 @@ Toda respuesta de error usa esta forma:
 | `403` | `FORBIDDEN` | Autenticado pero sin permiso (desde B6). |
 | `404` | `NOT_FOUND` | El recurso no existe **o pertenece a otro usuario**. |
 | `409` | `MOOD_ENTRY_ALREADY_EXISTS` | Ya hay un registro emocional para esa fecha. |
+| `409` | `EMAIL_ALREADY_REGISTERED` | Ya existe una cuenta con ese email. |
 | `422` | `VALIDATION_ERROR` | Body o query params inválidos, incluido JSON malformado. |
 | `500` | `INTERNAL_ERROR` | Error inesperado. Nunca expone detalles internos. |
 

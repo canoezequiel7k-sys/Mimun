@@ -4,145 +4,121 @@ Plan de trabajo del backend. Contexto y arquitectura en [README.md](./README.md)
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Frontend
 
-**Estado global:** 🟡 Fase B1 en curso (setup del proyecto). B0 cerrada.
+**Estado global:** 🟡 B0 a B4 terminadas (CRUD de `mood-entries` y `journal-entries`, 65 tests en verde). B6 (autenticación) en curso. Orden recomendado: **B6 → B7 → B8 → B9**, con B5 opcional.
 
-> Marcar los checkboxes a medida que se completan. Una fase se considera terminada solo cuando todos sus checkboxes están marcados **y** sus tests pasan.
+> Una fase se considera terminada solo cuando todos sus checkboxes están marcados **y** sus tests pasan.
 
 ---
 
 ## Fase B0 — Contrato y diseño ✅
 
-Antes de escribir código. Es lo que permite que Android y Backend avancen en paralelo.
-
-- [x] Modelo de datos redactado en [`Docs/database/schema.md`](../Docs/database/schema.md).
-- [x] Contrato inicial de `mood-entries` en [`Docs/api/mood-entries.md`](../Docs/api/mood-entries.md). 🔗
-- [x] Contrato inicial de `journal-entries` en [`Docs/api/journal-entries.md`](../Docs/api/journal-entries.md). 🔗
-- [x] Formato de error unificado en [`Docs/api/README.md`](../Docs/api/README.md). 🔗
-- [x] Decisiones registradas en [`Docs/decisions/`](../Docs/decisions/README.md) (enum de `mood`, UUID, un registro por día, Clean Architecture).
-- [x] Decisiones 0004 a 0007 confirmadas por el autor (2026-09-29).
-- [x] Rol de `Auth/` decidido (decisión 0006): módulo dentro del backend.
-- [x] Contrato revisado con el Frontend (`date` vs `timestamp`, decisión 0004). 🔗
-
-**Terminada cuando:** las decisiones están confirmadas y Android puede construir su capa de datos con el contrato. ✅ Cumplido el 2026-09-29.
+- [x] Modelo de datos en [`Docs/database/schema.md`](../Docs/database/schema.md).
+- [x] Contrato de `mood-entries` y `journal-entries` en [`Docs/api/`](../Docs/api/README.md). 🔗
+- [x] Formato de error unificado. 🔗
+- [x] Decisiones registradas en [`Docs/decisions/`](../Docs/decisions/README.md).
+- [x] Decisiones 0004 a 0007 confirmadas y rol de `Auth/` decidido (módulo del backend).
 
 ---
 
-## Fase B1 — Setup del proyecto 🟡
+## Fase B1 — Setup del proyecto ✅
 
-- [x] Crear la estructura de capas (`domain/`, `application/`, `infrastructure/`, `presentation/`), `tests/` y `alembic/`.
-- [x] `requirements.txt` y `pyproject.toml`.
-- [ ] Fijar las versiones exactas de `requirements.txt` (hoy son rangos mínimos): instalar y generar el lock con `pip freeze`.
-- [x] `docker-compose.yml` con PostgreSQL.
-- [x] `.env.example` y carga de configuración con `pydantic-settings`.
+- [x] Estructura de capas, `tests/` y `alembic/`.
+- [x] `requirements.txt` con versiones fijadas y `pyproject.toml`.
+- [x] `docker-compose.yml` con PostgreSQL y `.env.example`.
+- [x] Configuración con `pydantic-settings`.
 - [x] `main.py` con FastAPI y `GET /health`.
-- [x] `container.py` (composition root) conectado.
-- [x] Configurar `ruff` y `pytest`.
-- [x] Configurar `import-linter` con los contratos de capas.
-- [x] `conftest.py` con base de datos de test.
-- [ ] **Verificar en la máquina del autor**: `uvicorn`, `pytest`, `ruff check .` y `lint-imports` (ver README, sección "Instalar y correr").
-
-**Terminada cuando:** `uvicorn` levanta, `/health` responde `200`, `pytest` corre y `lint-imports` pasa.
-
-> Los archivos están escritos pero **todavía no se ejecutaron**: esta fase se cierra cuando los cuatro comandos de verificación pasen.
+- [x] `container.py` (composition root).
+- [x] `ruff`, `pytest` e `import-linter` configurados.
+- [x] `conftest.py` con base de datos de test (`mimun_test`).
 
 ---
 
-## Fase B2 — Dominio y persistencia ⚪
+## Fase B2 — Dominio y persistencia ✅
 
-- [ ] Enum `MoodType` (`RAD, GOOD, MEH, BAD, AWFUL`) con su puntaje.
-- [ ] Entidades `User`, `MoodEntry` y `JournalEntry` (dataclasses puras).
-- [ ] Errores de dominio.
-- [ ] Interfaces de repositorio en `domain/repositories/`.
-- [ ] Configurar Alembic.
-- [ ] Modelos SQLAlchemy y mappers entidad ↔ modelo.
-- [ ] Primera migración aplicada sobre una base vacía (con `UNIQUE (user_id, date)` e índices).
-- [ ] Implementaciones de repositorio.
-- [ ] Tests de integración de los repositorios contra PostgreSQL.
-
-**Terminada cuando:** `alembic upgrade head` crea todas las tablas, `alembic downgrade base` las elimina, y los repositorios pasan sus tests.
+- [x] `MoodType` (`RAD, GOOD, MEH, BAD, AWFUL`) con su puntaje.
+- [x] Entidades `User`, `MoodEntry` y `JournalEntry`.
+- [x] Errores de dominio y validación de textos.
+- [x] Interfaces de repositorio en `domain/repositories/`.
+- [x] Alembic configurado y migración `0001` (con `downgrade` probado).
+- [x] Modelos SQLAlchemy y repositorios.
+- [x] Tests de integración de los repositorios contra PostgreSQL.
 
 ---
 
-## Fase B3 — CRUD de registros emocionales ⚪ 🔗
+## Fase B3 — CRUD de registros emocionales ✅ 🔗
 
-Se desarrolla **sin autenticación real** al principio, con un usuario fijo de desarrollo, y se protege en B6.
+- [x] Casos de uso: crear, obtener, listar (`from` / `to` / paginación), actualizar y borrar.
+- [x] Regla de negocio: un registro por día → `409 MOOD_ENTRY_ALREADY_EXISTS`.
+- [x] Routers de `/mood-entries` y schemas.
+- [x] Traducción de errores al formato unificado.
+- [x] Tests de casos de uso (repos fake) y de API.
+- [ ] Probado desde la app Android (Fase F6 del Frontend). 🔗
 
-- [ ] Commands, results y schemas Pydantic de `MoodEntry`.
-- [ ] Casos de uso: crear, obtener, listar (filtros `from` / `to`), actualizar y borrar.
-- [ ] Regla de negocio: un registro por día → `MoodEntryAlreadyExistsError` → `409`.
-- [ ] Routers de `/mood-entries`.
-- [ ] Traducción de errores de dominio al formato unificado.
-- [ ] Tests de casos de uso (repos fake) y de API (casos felices y de error).
-
-**Terminada cuando:** el CRUD funciona según `Docs/api/` y Android puede consumirlo contra un backend local.
+Sin autenticación real: usa un usuario fijo de desarrollo hasta que se active B6.
 
 ---
 
-## Fase B4 — Reflexiones (Journal) ⚪ 🔗
+## Fase B4 — Reflexiones (Journal) ✅ 🔗
 
-- [ ] Commands, results y schemas de `JournalEntry`.
-- [ ] Casos de uso y CRUD completo de `/journal-entries`.
-- [ ] Relación opcional con `MoodEntry` (validar que pertenezca al mismo usuario).
-- [ ] Paginación en el listado.
-- [ ] Tests de casos de uso y de API.
-
-**Terminada cuando:** se puede crear, editar, listar y borrar reflexiones, con o sin registro emocional asociado.
+- [x] Casos de uso y CRUD completo de `/journal-entries`.
+- [x] Relación opcional con `MoodEntry` (se valida que sea del mismo usuario).
+- [x] Paginación y filtro por `mood_entry_id`.
+- [x] Tests de casos de uso y de API.
+- [ ] Probado desde la app Android (Fase F6 del Frontend). 🔗
 
 ---
 
-## Fase B5 — Estadísticas ⚪ 🔗
+## Fase B6 — Autenticación 🟡 🔗
+
+Contrato en [`Docs/api/auth.md`](../Docs/api/auth.md). Se hace antes que B5 porque el Frontend (F7) depende de ella.
+
+- [x] Contrato documentado en `Docs/api/auth.md`. 🔗
+- [ ] Ports `PasswordHasher` y `TokenService` + implementaciones (argon2, JWT).
+- [ ] Migración `0002`: tabla `refresh_tokens`.
+- [ ] Casos de uso: registrar, iniciar sesión, refrescar (con rotación) y cerrar sesión.
+- [ ] `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`.
+- [ ] `get_current_user_id` con `Authorization: Bearer`; `AUTH_ENABLED` (obligatorio en producción).
+- [ ] Tests de casos de uso, de API y de protección de endpoints.
+- [ ] Tests de aislamiento: un usuario no ve datos de otro.
+
+**Terminada cuando:** con `AUTH_ENABLED=true` ningún endpoint de datos responde sin token válido.
+
+---
+
+## Fase B5 — Estadísticas ⚪ (opcional) 🔗
+
+Analytics ya funciona en Android sobre Room. Solo hace falta si se quiere calcular en el servidor.
 
 - [ ] Definir en `Docs/api/` el formato de `GET /stats/mood-distribution`. 🔗
 - [ ] Caso de uso y endpoint de distribución (conteo y porcentaje por estado en un rango).
-- [ ] Endpoint de evolución temporal (ej.: promedio o racha por semana), si Analytics lo requiere.
-- [ ] Consultas agregadas eficientes (SQL, no cargar todo en memoria).
+- [ ] Endpoint de evolución temporal, si Analytics lo requiere.
+- [ ] Consultas agregadas en SQL, no en memoria.
 - [ ] Tests con datos de ejemplo.
-
-**Terminada cuando:** Analytics en Android puede pedir sus estadísticas sin calcularlas localmente.
-
----
-
-## Fase B6 — Autenticación ⚪ 🔗
-
-Depende de la decisión sobre `Auth/` (B0).
-
-- [ ] Ports `PasswordHasher` y `TokenProvider` + implementaciones (argon2/bcrypt, JWT).
-- [ ] Casos de uso: registrar, iniciar sesión, refrescar.
-- [ ] `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`.
-- [ ] Dependencia `get_current_user`.
-- [ ] Proteger todos los endpoints de datos.
-- [ ] Tests de aislamiento: un usuario no ve datos de otro.
-- [ ] Errores `401` / `403` según el contrato.
-- [ ] Documentar el flujo en `Docs/api/`. 🔗
-
-**Terminada cuando:** ningún endpoint de datos responde sin token válido y un usuario no puede leer datos de otro.
 
 ---
 
 ## Fase B7 — Soporte de sincronización ⚪ 🔗
 
-Para que Android pueda trabajar offline y sincronizar después.
+Para que Android trabaje offline y sincronice después.
 
-- [ ] Aceptar IDs generados por el cliente (UUID).
+- [x] Aceptar IDs generados por el cliente (UUID).
 - [ ] Definir la idempotencia de `POST` ante reintentos y documentarla. 🔗
-- [ ] Definir estrategia de conflictos (ej.: gana `updated_at` más reciente) y documentarla. 🔗
-- [ ] Endpoint o parámetro para obtener cambios desde una fecha (`updated_since`).
+- [ ] Definir la estrategia de conflictos (ej.: gana `updated_at` más reciente) y documentarla. 🔗
+- [ ] Parámetro para obtener cambios desde una fecha (`updated_since`).
 - [ ] Borrado lógico (`deleted_at`) si la sincronización lo requiere.
 - [ ] Tests de escenarios de sincronización.
-
-**Terminada cuando:** el contrato de sincronización está documentado y probado con casos de conflicto.
 
 ---
 
 ## Fase B8 — Calidad y endurecimiento ⚪
 
 - [ ] Cobertura razonable de tests en casos de uso y API.
-- [ ] Validación estricta de entradas (longitudes máximas, fechas válidas).
 - [ ] Rate limiting básico en `/auth`.
 - [ ] Configuración de CORS.
-- [ ] Logging estructurado.
+- [ ] Logging estructurado (sin contenido de notas ni reflexiones).
 - [ ] Revisión de índices con datos de prueba grandes.
-- [ ] Revisión de seguridad (secretos, hashing, expiración de tokens).
+- [ ] Revisión de seguridad (secretos, hashing, expiración y revocación de tokens).
+- [ ] Resolver la advertencia de deprecación de `httpx` en el `TestClient` de Starlette.
 
 ---
 
@@ -150,10 +126,9 @@ Para que Android pueda trabajar offline y sincronizar después.
 
 - [ ] `Dockerfile` del backend.
 - [ ] Configuración por entorno (dev / prod).
-- [ ] Elegir hosting y base de datos gestionada.
+- [ ] Hosting y base de datos gestionada.
 - [ ] Migraciones automáticas en el deploy.
-- [ ] HTTPS.
-- [ ] Backups de la base de datos.
+- [ ] HTTPS y backups de la base de datos.
 - [ ] Documentar el proceso en `Docs/architecture/`.
 
 ---
@@ -171,9 +146,8 @@ Para que Android pueda trabajar offline y sincronizar después.
 
 | Hito | Qué habilita en Android |
 |---|---|
-| Fin de B0 | Construir DTOs, Retrofit y repositorios contra un contrato estable. |
-| Fin de B3 | Probar el registro emocional contra una API real. |
-| Fin de B4 | Integrar reflexiones. |
-| Fin de B5 | Integrar Analytics con datos del servidor. |
-| Fin de B6 | Implementar login y sesión en la app. |
-| Fin de B7 | Implementar sincronización offline. |
+| ✅ Fin de B0 | DTOs, Retrofit y repositorios contra un contrato estable. |
+| ✅ Fin de B3 y B4 | Probar F6 (mood y journal) contra una API real. |
+| Fin de B6 | F7: login, sesión y tokens. |
+| Fin de B7 | F7: sincronización offline. |
+| Fin de B5 (opcional) | Analytics con datos del servidor. |

@@ -13,6 +13,7 @@ Decisiones de arquitectura y de producto que afectan a más de un módulo. Se ag
 | 0005 | `mood` guardado como `text` + `CHECK` | ✅ |
 | 0006 | Rol de `Auth/`: módulo dentro del backend | ✅ |
 | 0007 | Un recurso ajeno responde `404` | ✅ |
+| 0008 | Sesión: JWT de acceso + refresh token opaco con rotación, y `AUTH_ENABLED` | 🟡 |
 
 ---
 
@@ -91,3 +92,13 @@ Detalle en [`Backend/README.md`](../../Backend/README.md).
 **Motivo:** responder `403` confirmaría que el ID existe. Es un dato personal sensible (una app de diario emocional).
 
 **Consecuencias:** `403` queda reservado para permisos, no para propiedad de datos.
+
+---
+
+## 0008 — Sesión: JWT de acceso + refresh token opaco con rotación, y `AUTH_ENABLED` 🟡
+
+**Decisión:** el `access_token` es un JWT de vida corta (30 min). El `refresh_token` es un texto aleatorio opaco; el servidor guarda solo su hash SHA-256 en `refresh_tokens` y lo **rota** en cada uso. Los repositorios hacen `commit` por operación. Una variable `AUTH_ENABLED` permite trabajar sin token en desarrollo; es obligatoria (`true`) en producción y la app se niega a arrancar si no.
+
+**Motivo:** un refresh token revocable permite cerrar sesión de verdad y limita el daño si se filtra. Con datos tan sensibles como un diario emocional, conviene no depender solo de JWT largos. `AUTH_ENABLED` evita bloquear la Fase F6 del Frontend (integración de mood y journal) mientras todavía no existe la pantalla de login de F7.
+
+**Consecuencias:** una tabla más y una consulta a la base por cada refresh. Los access tokens no se pueden revocar antes de que venzan (por eso duran poco). Detalle en [`Docs/api/auth.md`](../api/auth.md).

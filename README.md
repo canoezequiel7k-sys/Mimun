@@ -11,8 +11,8 @@ App Android para registrar cómo te sentís cada día, escribir reflexiones y ve
 
 | Módulo | Estado | Detalle |
 |---|---|---|
-| 📱 [Frontend](./Frontend/README.md) | 🟡 En progreso | Estructura visual avanzada. Datos en memoria; sin Room ni API. |
-| 🖥️ [Backend](./Backend/README.md) | 🟡 Setup (B1) | Contrato cerrado (B0). Esqueleto del proyecto y `/health` escritos, sin verificar. |
+| 📱 [Frontend](./Frontend/README.md) | 🟡 En progreso | F1 a F5 terminadas (Room incluido). Siguiente: integración con la API (F6). |
+| 🖥️ [Backend](./Backend/README.md) | 🟡 En progreso | B0 a B4 terminadas: API de `mood-entries` y `journal-entries`. Autenticación (B6) en curso. |
 | 📚 [Docs](./Docs/) | 🟡 En progreso | Contrato de la API, esquema de base de datos y decisiones. |
 | 🔐 Auth | ✅ Decidido | Módulo dentro del backend, no un servicio aparte ([decisión 0006](./Docs/decisions/README.md)). La carpeta `Auth/` puede eliminarse. |
 

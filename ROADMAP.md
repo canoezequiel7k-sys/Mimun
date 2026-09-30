@@ -15,11 +15,11 @@ Plan de alto nivel del proyecto. Contexto en el [README raíz](./README.md). El 
 
 | # | Fase | Estado | Frontend | Backend |
 |---|---|---|---|---|
-| 1 | **Foundation**: proyecto, tema, navegación, componentes base | 🟡 | F1 | — |
-| 2 | **Mood**: selector, personajes animados, registro del día | 🟡 | F2 | — |
-| 3 | **Journal**: reflexiones (Notes) | ⚪ | F3 | — |
-| 4 | **Persistencia local**: Room | ⚪ | F4 | — |
-| 5 | **Analytics**: historial, calendario y estadísticas locales | ⚪ | F5 | — |
+| 1 | **Foundation**: proyecto, tema, navegación, componentes base | ✅ | F1 | — |
+| 2 | **Mood**: selector, personajes animados, registro del día | ✅ | F2 | — |
+| 3 | **Journal**: reflexiones (Notes) | ✅ | F3 | — |
+| 4 | **Persistencia local**: Room | ✅ | F4 | — |
+| 5 | **Analytics**: historial, calendario y estadísticas locales | ✅ | F5 | — |
 | 6 | **Backend**: contrato, base de datos, CRUD, reflexiones y estadísticas | 🟡 | — | B0 a B5 |
 | 7 | **Integración**: API, autenticación y sincronización | ⚪ | F6, F7 | B6, B7 |
 | 8 | **Testing y refinamiento** | ⚪ | F8 | B8 |
@@ -51,6 +51,6 @@ Fases 1 a 5 (Frontend, 100% local)      Fase 6 (Backend)
 | Hito | Módulo | Qué desbloquea |
 |---|---|---|
 | ~~Cerrar B0 (contrato y decisiones)~~ ✅ 2026-09-29 | Backend | Android ya puede construir DTOs y Retrofit contra el contrato |
-| Cerrar B1 (verificar el esqueleto en la máquina del autor) | Backend | Empezar el dominio y la base de datos |
-| B2 (dominio y persistencia) | Backend | Empezar el CRUD |
-| B3 (CRUD de registros emocionales) | Backend | Probar Mood contra una API real |
+| F6: conectar Android a `mood-entries` y `journal-entries` (backend B3 y B4 listos) | Frontend | Probar la integración contra la API real |
+| B6: autenticación | Backend | F7: login y sesión |
+| B7: sincronización | Backend | F7: trabajo offline |

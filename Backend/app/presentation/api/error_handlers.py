@@ -5,7 +5,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.domain.errors import DomainValidationError, MoodEntryAlreadyExistsError, NotFoundError
+from app.domain.errors import (
+    AuthenticationError,
+    DomainValidationError,
+    EmailAlreadyRegisteredError,
+    MoodEntryAlreadyExistsError,
+    NotFoundError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -13,11 +19,16 @@ _HTTP_CODES = {401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND"}
 
 
 def _error(
-    status_code: int, code: str, message: str, details: list[dict[str, str]] | None = None
+    status_code: int,
+    code: str,
+    message: str,
+    details: list[dict[str, str]] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=status_code,
         content={"error": {"code": code, "message": message, "details": details or []}},
+        headers=headers,
     )
 
 
@@ -38,6 +49,15 @@ def register_error_handlers(app: FastAPI) -> None:
         details = [{"field": "date", "message": str(exc)}]
         return _error(409, "MOOD_ENTRY_ALREADY_EXISTS", str(exc), details)
 
+    @app.exception_handler(EmailAlreadyRegisteredError)
+    async def _email_exists(request: Request, exc: EmailAlreadyRegisteredError) -> JSONResponse:
+        details = [{"field": "email", "message": str(exc)}]
+        return _error(409, "EMAIL_ALREADY_REGISTERED", str(exc), details)
+
+    @app.exception_handler(AuthenticationError)
+    async def _authentication(request: Request, exc: AuthenticationError) -> JSONResponse:
+        return _error(401, "UNAUTHORIZED", str(exc), headers={"WWW-Authenticate": "Bearer"})
+
     @app.exception_handler(RequestValidationError)
     async def _request_validation(request: Request, exc: RequestValidationError) -> JSONResponse:
         details = []
@@ -53,7 +73,7 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(StarletteHTTPException)
     async def _http_exception(request: Request, exc: StarletteHTTPException) -> JSONResponse:
         code = _HTTP_CODES.get(exc.status_code, f"HTTP_{exc.status_code}")
-        return _error(exc.status_code, code, str(exc.detail))
+        return _error(exc.status_code, code, str(exc.detail), headers=exc.headers)
 
     @app.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:

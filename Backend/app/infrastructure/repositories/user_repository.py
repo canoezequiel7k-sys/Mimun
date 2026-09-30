@@ -1,10 +1,13 @@
 from uuid import UUID
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.domain.entities import User
+from app.domain.errors import EmailAlreadyRegisteredError
 from app.infrastructure.db.models import UserModel
+from app.infrastructure.repositories._db_errors import violated_constraint
 
 
 def _to_entity(model: UserModel) -> User:
@@ -31,7 +34,13 @@ class SqlAlchemyUserRepository:
                 updated_at=user.updated_at,
             )
         )
-        self._session.commit()
+        try:
+            self._session.commit()
+        except IntegrityError as exc:
+            self._session.rollback()
+            if violated_constraint(exc) == "uq_users_email_lower":
+                raise EmailAlreadyRegisteredError() from exc
+            raise
 
     def get_by_id(self, user_id: UUID) -> User | None:
         model = self._session.get(UserModel, user_id)

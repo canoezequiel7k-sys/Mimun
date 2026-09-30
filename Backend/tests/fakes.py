@@ -1,11 +1,18 @@
+"""Fakes en memoria para los tests de `application` y de la API (sin base de datos).
+
+Los fakes de autenticación viven en `tests/fakes_auth.py`.
+"""
+
 import datetime as dt
 from uuid import UUID
 
 from app.domain.entities import JournalEntry, MoodEntry
-from app.domain.errors import DomainValidationError, MoodEntryAlreadyExistsError, NotFoundError
+from app.domain.errors import MoodEntryAlreadyExistsError, NotFoundError
 
 
 class FakeClock:
+    """Reloj controlable: `now()` devuelve un instante fijo que se puede adelantar."""
+
     def __init__(self, now: dt.datetime) -> None:
         self._now = now
 
@@ -21,16 +28,29 @@ class FakeMoodEntryRepository:
         self.items: dict[UUID, MoodEntry] = {}
 
     def add(self, entry: MoodEntry) -> None:
-        if any(e.user_id == entry.user_id and e.date == entry.date for e in self.items.values()):
+        if self.get_by_date(entry.user_id, entry.date) is not None:
             raise MoodEntryAlreadyExistsError(entry.date)
         self.items[entry.id] = entry
 
     def get(self, user_id: UUID, entry_id: UUID) -> MoodEntry | None:
         entry = self.items.get(entry_id)
-        return entry if entry and entry.user_id == user_id else None
+        return entry if entry is not None and entry.user_id == user_id else None
 
     def get_by_date(self, user_id: UUID, date: dt.date) -> MoodEntry | None:
-        return next((e for e in self._filtered(user_id, date, date)), None)
+        return next(
+            (e for e in self.items.values() if e.user_id == user_id and e.date == date), None
+        )
+
+    def _filtered(
+        self, user_id: UUID, date_from: dt.date | None, date_to: dt.date | None
+    ) -> list[MoodEntry]:
+        return [
+            e
+            for e in self.items.values()
+            if e.user_id == user_id
+            and (date_from is None or e.date >= date_from)
+            and (date_to is None or e.date <= date_to)
+        ]
 
     def list_entries(
         self,
@@ -41,7 +61,10 @@ class FakeMoodEntryRepository:
         limit: int,
         offset: int,
     ) -> list[MoodEntry]:
-        return self._filtered(user_id, date_from, date_to)[offset : offset + limit]
+        entries = sorted(
+            self._filtered(user_id, date_from, date_to), key=lambda e: e.date, reverse=True
+        )
+        return entries[offset : offset + limit]
 
     def count_entries(
         self, user_id: UUID, *, date_from: dt.date | None, date_to: dt.date | None
@@ -49,7 +72,7 @@ class FakeMoodEntryRepository:
         return len(self._filtered(user_id, date_from, date_to))
 
     def update(self, entry: MoodEntry) -> None:
-        if entry.id not in self.items:
+        if self.get(entry.user_id, entry.id) is None:
             raise NotFoundError("Registro emocional")
         self.items[entry.id] = entry
 
@@ -59,42 +82,43 @@ class FakeMoodEntryRepository:
         del self.items[entry_id]
         return True
 
-    def _filtered(
-        self, user_id: UUID, date_from: dt.date | None, date_to: dt.date | None
-    ) -> list[MoodEntry]:
-        found = [
-            e
-            for e in self.items.values()
-            if e.user_id == user_id
-            and (date_from is None or e.date >= date_from)
-            and (date_to is None or e.date <= date_to)
-        ]
-        return sorted(found, key=lambda e: e.date, reverse=True)
-
 
 class FakeJournalEntryRepository:
     def __init__(self) -> None:
         self.items: dict[UUID, JournalEntry] = {}
 
     def add(self, entry: JournalEntry) -> None:
-        if entry.id in self.items:
-            raise DomainValidationError("id", "Ya existe una reflexión con ese id")
         self.items[entry.id] = entry
 
     def get(self, user_id: UUID, entry_id: UUID) -> JournalEntry | None:
         entry = self.items.get(entry_id)
-        return entry if entry and entry.user_id == user_id else None
+        return entry if entry is not None and entry.user_id == user_id else None
+
+    def _filtered(self, user_id: UUID, mood_entry_id: UUID | None) -> list[JournalEntry]:
+        return [
+            e
+            for e in self.items.values()
+            if e.user_id == user_id and (mood_entry_id is None or e.mood_entry_id == mood_entry_id)
+        ]
 
     def list_entries(
-        self, user_id: UUID, *, mood_entry_id: UUID | None, limit: int, offset: int
+        self,
+        user_id: UUID,
+        *,
+        mood_entry_id: UUID | None,
+        limit: int,
+        offset: int,
     ) -> list[JournalEntry]:
-        return self._filtered(user_id, mood_entry_id)[offset : offset + limit]
+        entries = sorted(
+            self._filtered(user_id, mood_entry_id), key=lambda e: e.created_at, reverse=True
+        )
+        return entries[offset : offset + limit]
 
     def count_entries(self, user_id: UUID, *, mood_entry_id: UUID | None) -> int:
         return len(self._filtered(user_id, mood_entry_id))
 
     def update(self, entry: JournalEntry) -> None:
-        if entry.id not in self.items:
+        if self.get(entry.user_id, entry.id) is None:
             raise NotFoundError("Reflexión")
         self.items[entry.id] = entry
 
@@ -103,11 +127,3 @@ class FakeJournalEntryRepository:
             return False
         del self.items[entry_id]
         return True
-
-    def _filtered(self, user_id: UUID, mood_entry_id: UUID | None) -> list[JournalEntry]:
-        found = [
-            e
-            for e in self.items.values()
-            if e.user_id == user_id and (mood_entry_id is None or e.mood_entry_id == mood_entry_id)
-        ]
-        return sorted(found, key=lambda e: e.created_at, reverse=True)

@@ -17,12 +17,16 @@ class Settings(BaseSettings):
     secret_key: str = _INSECURE_SECRET_KEY
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 14
+    auth_enabled: bool = True
     environment: Literal["development", "test", "production"] = "development"
 
     @model_validator(mode="after")
-    def _reject_insecure_secret_in_production(self) -> "Settings":
-        if self.environment == "production" and self.secret_key == _INSECURE_SECRET_KEY:
-            raise ValueError("SECRET_KEY debe configurarse con un valor propio en producción")
+    def _validate_production(self) -> "Settings":
+        if self.environment == "production":
+            if self.secret_key == _INSECURE_SECRET_KEY or len(self.secret_key) < 32:
+                raise ValueError("SECRET_KEY debe ser propia y de al menos 32 caracteres")
+            if not self.auth_enabled:
+                raise ValueError("AUTH_ENABLED debe ser true en producción")
         return self
 
 

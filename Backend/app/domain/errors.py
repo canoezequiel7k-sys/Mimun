@@ -34,3 +34,15 @@ class MoodEntryAlreadyExistsError(DomainError):
     def __init__(self, date: dt.date) -> None:
         super().__init__(f"Ya existe un registro emocional para {date.isoformat()}")
         self.date = date
+
+
+class EmailAlreadyRegisteredError(DomainError):
+    def __init__(self) -> None:
+        super().__init__("Ya existe una cuenta con ese email")
+
+
+class AuthenticationError(DomainError):
+    """Credenciales o token inválidos, vencidos o revocados."""
+
+    def __init__(self, message: str = "Credenciales inválidas") -> None:
+        super().__init__(message)

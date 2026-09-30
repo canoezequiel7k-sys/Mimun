@@ -49,14 +49,15 @@ Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
 ## Fase F3 — Journal (Notes) ⚪
 
-- [ ] Modelo `JournalEntry` en `domain`.
-- [ ] Repositorio y use cases de reflexiones (fake por ahora).
-- [ ] Pantalla de lista de reflexiones.
-- [ ] Pantalla de crear reflexión.
-- [ ] Pantalla de ver y editar reflexión.
-- [ ] Eliminar reflexión con confirmación.
-- [ ] Relacionar una reflexión con el registro emocional del día.
-- [ ] Estados vacío, cargando y error.
+- [x] Modelo `JournalEntry` en `domain`.
+- [x] Repositorio y use cases de reflexiones (fake por ahora).
+- [x] Casos de uso (`GetJournalEntriesUseCase`, `SaveJournalEntryUseCase`, `DeleteJournalEntryUseCase`)
+- [x] Pantalla de lista de reflexiones.
+- [x] Pantalla de crear reflexión.
+- [x] Pantalla de ver y editar reflexión.
+- [x] Eliminar reflexión con confirmación.
+- [x] Relacionar una reflexión con el registro emocional del día.
+- [x] Estados vacío, cargando y error.
 
 **Terminada cuando:** se puede crear, editar, ver y borrar reflexiones y asociarlas a un estado emocional.
 

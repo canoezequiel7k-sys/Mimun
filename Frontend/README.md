@@ -9,13 +9,14 @@ App Android de Mimun, hecha 100% con **Kotlin + Jetpack Compose**.
 
 ## 📍 Estado actual
 
-🟡 **En progreso.** La estructura visual está avanzada. Todavía no hay persistencia local (Room) ni integración con la API (Retrofit).
+🟡 **En progreso (Fases F1, F2 y F3 completadas).**
 
-Mientras el backend no exista, la app trabaja con **datos en memoria o fake** detrás de interfaces de repositorio, para poder reemplazarlos después sin tocar la UI.
+- **Fase F1 — Foundation ✅**: Proyecto configurado con Jetpack Compose, Material 3, Clean Architecture + MVVM, y navegador común (`MainScreen`) con la barra de navegación inferior navegable (**Notes**, **Mood**, **Analytics**).
+- **Fase F2 — Mood ✅**: Selección de emociones con los 6 estados (`RAD`, `GOOD`, `NORMAL`, `MEH`, `BAD`, `AWFUL`), personajes animados frame-by-frame, notas cortas opcionales y registro diario (`MoodEntry`).
+- **Fase F3 — Journal (Notes) ✅**: Diario de reflexiones completo (`JournalEntry`) con lista de tarjetas, diálogos modales para crear, editar y borrar notas.
+- ** En Proceso... — Fase F4**: Persistencia local con **Room Database** para guardar de forma permanente las notas y registros emocionales en el dispositivo.
 
-> Actualizar esta sección cuando cambie el estado real. Ante la duda sobre qué existe, mirar el código y no asumir.
-
----
+> Mientras no haya integración directa con la API, la app opera con repositorios fake/locales en memoria detrás de interfaces de la c
 
 ## 🎯 Responsabilidades
 

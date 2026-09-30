@@ -10,7 +10,7 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 ---
 
-## Fase F1 — Foundation 🟡
+## Fase F1 — Foundation ✅ terminada
 
 - [x] Proyecto Android con Jetpack Compose y Material 3.
 - [x] Estructura de paquetes base (`core/`, `feature/`).
@@ -27,7 +27,7 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 ---
 
-## Fase F2 — Mood ⚪
+## Fase F2 — Mood ✅ terminada
 
 Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
@@ -47,7 +47,7 @@ Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
 ---
 
-## Fase F3 — Journal (Notes) ⚪
+## Fase F3 — Journal (Notes) ✅ terminada
 
 - [x] Modelo `JournalEntry` en `domain`.
 - [x] Repositorio y use cases de reflexiones (fake por ahora).
@@ -63,40 +63,40 @@ Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
 ---
 
-## Fase F4 — Persistencia local (Room) ⚪
+## Fase F4 — Persistencia local (Room) ✅ terminada
 
-- [ ] Configurar Room.
-- [ ] Entidades `MoodEntryEntity` y `JournalEntryEntity`.
-- [ ] DAOs.
-- [ ] `AppDatabase` y migraciones de Room.
-- [ ] Mappers entidad ↔ dominio.
-- [ ] Reemplazar repositorios fake por implementaciones con Room.
-- [ ] IDs en formato UUID desde el cliente. 🔗
-- [ ] Campo de control de sincronización (ej.: `syncStatus`, `updatedAt`) previendo la Fase F7. 🔗
-- [ ] Tests de DAO y de repositorio.
+- [x] Configurar Room.
+- [x] Entidades `MoodEntryEntity` y `JournalEntryEntity`.
+- [x] DAOs.
+- [x] `AppDatabase` y migraciones de Room.
+- [x] Mappers entidad ↔ dominio.
+- [x] Reemplazar repositorios fake por implementaciones con Room.
+- [x] IDs en formato UUID desde el cliente. 🔗
+- [x] Campo de control de sincronización (ej.: `syncStatus`, `updatedAt`) previendo la Fase F7. 🔗
+- [x] Tests de DAO y de repositorio.
 
 **Terminada cuando:** los datos persisten entre cierres de la app y la UI no cambió al reemplazar los fakes.
 
 ---
 
-## Fase F5 — Analytics ⚪
+## Fase F5 — Analytics ✅ terminada
 
 Primero calculado localmente sobre Room; en F6 se puede migrar a las estadísticas del servidor.
 
-- [ ] Historial emocional (lista por fecha).
-- [ ] Calendario con el estado de cada día.
-- [ ] Distribución de estados (conteo y porcentaje).
-- [ ] Evolución temporal (semana / mes).
-- [ ] Selector de rango de fechas.
-- [ ] Gráficos (implementados con Compose Canvas o librería a decidir).
-- [ ] Estados vacío y cargando.
-- [ ] Use cases de estadísticas.
+- [x] Historial emocional (lista por fecha).
+- [x] Calendario con el estado de cada día.
+- [x] Distribución de estados (conteo y porcentaje).
+- [x] Evolución temporal (semana / mes).
+- [x] Selector de rango de fechas.
+- [x] Gráficos (implementados con Compose Canvas o librería a decidir).
+- [x] Estados vacío y cargando.
+- [x] Use cases de estadísticas.
 
 **Terminada cuando:** Analytics muestra historial, calendario y estadísticas a partir de los datos locales.
 
 ---
 
-## Fase F6 — Integración con la API ⚪ 🔗
+## Fase F6 — Integración con la API 🟡 en progreso
 
 **Bloqueada hasta que el contrato de `Docs/api/` esté definido** (Backend B0) y, para probar de verdad, hasta que exista B3.
 

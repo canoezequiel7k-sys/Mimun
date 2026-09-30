@@ -2,6 +2,9 @@ package com.canoezequiel.moodflow.data.repository
 
 import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.R
+import com.canoezequiel.moodflow.data.local.dao.MoodEntryDao
+import com.canoezequiel.moodflow.data.mapper.toDomain
+import com.canoezequiel.moodflow.data.mapper.toEntity
 import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
 import com.canoezequiel.moodflow.domain.model.MoodType
@@ -11,10 +14,9 @@ import java.time.LocalDateTime
 
 //Implementa los contratos de domain. Decide CÓMO y DÓNDE se guardan las cosas
 //Clase que implementa MoodRepository
-class MoodRepositoryImpl : MoodRepository {
-
-    //Almacenamiento en memoria para entradas
-    private val entries = mutableListOf<MoodEntry>()
+class MoodRepositoryImpl(
+    private val dao: MoodEntryDao
+) : MoodRepository {
 
     //Define la lista física de las 6 emociones asociadas a los recursos gráficos
     override fun getAvailableMoods(): List<Mood> {
@@ -103,19 +105,19 @@ class MoodRepositoryImpl : MoodRepository {
 
 
     override fun saveMoodEntry(entry: MoodEntry) {
-        //Remplazar la entrada de hoy si ya existe
-        entries.removeAll{ it.timestamp.toLocalDate() == entry.timestamp.toLocalDate() }
-        entries.add(entry)
+        val dateString = entry.timestamp.toLocalDate().toString()
+        dao.deleteMoodEntriesByDate(dateString) // Borra cualquier registro viejo de hoy
+        dao.insertMoodEntry(entry.toEntity())   // Inserta la nueva emoción elegida
     }
 
     //Compara la fecha actual (LocalDate.now()) con la fecha guardada en cada registro (it.timestamp.toLocalDate())
     override fun getTodayMoodEntry(): MoodEntry? {
-        val today = LocalDate.now()
-        return entries.find { it.timestamp.toLocalDate() == today }
+        val dataString = LocalDate.now().toString()
+        return dao.getMoodEntryByDate(dataString)?.toDomain()
     }
 
     override fun getAllMoodEntries(): List<MoodEntry> {
-        return entries.toList()
+        return dao.getAllMoodEntries().map { it.toDomain() }
     }
 
 }

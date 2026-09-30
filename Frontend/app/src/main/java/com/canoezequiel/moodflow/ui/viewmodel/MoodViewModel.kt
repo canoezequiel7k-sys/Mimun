@@ -1,6 +1,8 @@
 package com.canoezequiel.moodflow.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.canoezequiel.moodflow.MoodApplication
+import com.canoezequiel.moodflow.data.local.database.AppDatabase
 import com.canoezequiel.moodflow.data.repository.MoodRepositoryImpl
 import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
@@ -26,7 +28,9 @@ data class MoodUiState(
 class MoodViewModel : ViewModel() {
 
     //Instancia del repositorio y caso de uso(Sin DI por ahora, para mantenerlo simple)
-    private val repository = MoodRepositoryImpl()
+    private val repository = MoodRepositoryImpl(
+        AppDatabase.getInstance(MoodApplication.context).moodEntryDao()
+    )
 
     //Conexion con capa de dominio
     private val getMoodsUseCase = GetMoodsUseCase(repository)
@@ -64,7 +68,11 @@ class MoodViewModel : ViewModel() {
             MoodType.GOOD
         }
 
+        val todayString = java.time.LocalDate.now().toString()
+
+        // Usamos un ID basado en la fecha para que reemplace el registro de hoy si ya existía
         val entry = MoodEntry(
+            id = "mood_entry_$todayString",
             moodType = moodType,
             note = _uiState.value.noteText.ifBlank { null }
         )

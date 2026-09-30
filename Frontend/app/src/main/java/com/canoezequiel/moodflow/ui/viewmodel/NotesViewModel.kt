@@ -1,10 +1,10 @@
 package com.canoezequiel.moodflow.ui.viewmodel
 
-import android.R
 import androidx.lifecycle.ViewModel
+import com.canoezequiel.moodflow.MoodApplication
+import com.canoezequiel.moodflow.data.local.database.AppDatabase
 import com.canoezequiel.moodflow.data.repository.JournalRepositoryImpl
 import com.canoezequiel.moodflow.domain.model.JournalEntry
-import com.canoezequiel.moodflow.domain.repository.JournalRepository
 import com.canoezequiel.moodflow.domain.usecase.DeleteJournalEntryUseCase
 import com.canoezequiel.moodflow.domain.usecase.GetJournalEntriesUseCase
 import com.canoezequiel.moodflow.domain.usecase.SaveJournalEntryUseCase
@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-
 
 //Estado inmutable de la pantalla de notas
 data class NotesUiState(
@@ -27,7 +26,10 @@ data class NotesUiState(
 //ViewModel encargado de la gestion del estado de la interfaz de nota
 class NotesViewModel : ViewModel() {
 
-    private val repository = JournalRepositoryImpl()
+    // Instancia del repositorio pasando el DAO de Room
+    private val repository = JournalRepositoryImpl(
+        AppDatabase.getInstance(MoodApplication.context).journalEntryDao()
+    )
     private val getJournalEntriesUseCase = GetJournalEntriesUseCase(repository)
     private val saveJournalEntryUseCase = SaveJournalEntryUseCase(repository)
     private val deleteJournalEntryUseCase = DeleteJournalEntryUseCase(repository)

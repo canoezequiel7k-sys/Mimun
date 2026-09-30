@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+//Área central descriptiva con guía para el usuario.
 @Composable
 fun CenterEmptyStateContent(
     modifier: Modifier = Modifier

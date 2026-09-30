@@ -27,11 +27,13 @@ class MoodViewModel : ViewModel() {
 
     //Instancia del repositorio y caso de uso(Sin DI por ahora, para mantenerlo simple)
     private val repository = MoodRepositoryImpl()
+
+    //Conexion con capa de dominio
     private val getMoodsUseCase = GetMoodsUseCase(repository)
     private val saveMoodEntryUseCase = SaveMoodEntryUseCase(repository)
     private val getTodayMoodEntryUseCase = GetTodayMoodEntryUseCase(repository)
 
-    //Leemos el estado de la ui
+    //Expone el estado inmutable uiState StateFlow<MoodUiState> a la UI.
     private val _uiState = MutableStateFlow(
         MoodUiState(
             moods = getMoodsUseCase(),
@@ -43,14 +45,17 @@ class MoodViewModel : ViewModel() {
 //    val moods: List<Mood> = getMoodsUseCase()
     val uiState: StateFlow<MoodUiState> = _uiState.asStateFlow()
 
+    //Metodo para seleccionar un estado de animo
     fun selectMood(mood: Mood) {
         _uiState.update { it.copy(selectedMood = mood, showSuccessMessage = false) }
     }
 
+    //Metodo para actualizar la nota de texto
     fun updateNoteText(note: String){
         _uiState.update { it.copy(noteText = note) }
     }
 
+    //Metodo para guardar el estado de animo de hoy
     fun saveTodayMood() {
         val selected = _uiState.value.selectedMood ?: return
         val moodType = try {

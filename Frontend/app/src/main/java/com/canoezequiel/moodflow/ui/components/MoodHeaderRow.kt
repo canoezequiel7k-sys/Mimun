@@ -16,7 +16,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.domain.model.Mood
 
-
+//Carrusel horizontal (LazyRow) con las 6 emociones y animaciones elasticas de escala y rotacion al seleccionar.
 @Composable
 fun MoodHeaderRow(
     moods: List<Mood>,

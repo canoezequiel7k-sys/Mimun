@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+//Pantalla de reflexiones y diario
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesScreen(

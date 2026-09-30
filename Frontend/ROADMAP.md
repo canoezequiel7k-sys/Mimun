@@ -14,11 +14,11 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 - [x] Proyecto Android con Jetpack Compose y Material 3.
 - [x] Estructura de paquetes base (`core/`, `feature/`).
-- [ ] Tema visual definido (colores, tipografía, formas).
+- [x] Tema visual definido (colores, tipografía, formas).
 - [x] Navegación principal con barra inferior: **Notes · Mood · Analytics**.
 - [x] Contenedor común de navegación (no cada pantalla por separado).
 - [x] Componentes base reutilizables en `core/ui/components/`.
-- [ ] Inyección de dependencias configurada (Hilt).
+- [x] Inyección de dependencias configurada (Hilt).
 - [x] `Frontend/README.md` con la guía de paquetes y convenciones.
 
 **Terminada cuando:** se puede navegar entre las tres secciones y todas comparten el tema.
@@ -40,8 +40,8 @@ Trabaja **solo con datos en memoria / fake**: no depende del backend.
 - [x] Selector de emociones.
 - [x] Pantalla de registro diario (estado + nota corta opcional).
 - [x] `MoodViewModel` con `UiState` expuesto por `StateFlow`.
-- [ ] Use cases: registrar estado, obtener registro del día.
-- [ ] Previews de Compose para cada estado.
+- [x] Use cases: registrar estado, obtener registro del día.
+- [x] Previews de Compose para cada estado.
 
 **Terminada cuando:** el usuario elige un estado, agrega una nota y ve confirmado el registro del día.
 

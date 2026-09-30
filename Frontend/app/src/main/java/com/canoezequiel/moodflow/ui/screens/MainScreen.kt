@@ -14,6 +14,7 @@ import com.canoezequiel.moodflow.ui.screens.AnalyticsScreen
 import com.canoezequiel.moodflow.ui.screens.MoodSelectionScreen
 import com.canoezequiel.moodflow.ui.screens.NotesScreen
 
+//El contenedor raiz de navegacion. Contiene la NavigationBar inferior, persiste (Note, Mood, Analytics) y el navhost que intercambia las pantallas.
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()

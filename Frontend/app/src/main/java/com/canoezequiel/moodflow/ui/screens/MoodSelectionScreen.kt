@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.canoezequiel.moodflow.ui.components.MoodHeaderRow
 import com.canoezequiel.moodflow.ui.viewmodel.MoodViewModel
 
+//Pantalla principal de seleccion emocional, muestra el carrusel MoodHeaderRow, el campo de nota opcional y el boton flotante para guarda.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoodSelectionScreen(

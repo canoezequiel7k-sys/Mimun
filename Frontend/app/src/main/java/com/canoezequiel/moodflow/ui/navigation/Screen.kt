@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Mood
 import androidx.compose.ui.graphics.vector.ImageVector
 
-
+//define las 3 rutas principales navegables (Notes, Mood, Analytics) con sus nombres de ruta e íconos de Material 3.
 sealed class Screen(
     val route: String,
     val title: String,

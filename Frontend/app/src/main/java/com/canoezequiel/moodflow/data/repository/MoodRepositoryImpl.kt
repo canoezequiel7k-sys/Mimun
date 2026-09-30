@@ -6,12 +6,17 @@ import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
 import com.canoezequiel.moodflow.domain.model.MoodType
 import com.canoezequiel.moodflow.domain.repository.MoodRepository
+import java.time.LocalDate
 import java.time.LocalDateTime
 
+//Implementa los contratos de domain. Decide CÓMO y DÓNDE se guardan las cosas
+//Clase que implementa MoodRepository
 class MoodRepositoryImpl : MoodRepository {
+
     //Almacenamiento en memoria para entradas
     private val entries = mutableListOf<MoodEntry>()
 
+    //Define la lista física de las 6 emociones asociadas a los recursos gráficos
     override fun getAvailableMoods(): List<Mood> {
         return listOf(
             //RAD (5 frames)
@@ -96,14 +101,16 @@ class MoodRepositoryImpl : MoodRepository {
         )
     }
 
+
     override fun saveMoodEntry(entry: MoodEntry) {
         //Remplazar la entrada de hoy si ya existe
         entries.removeAll{ it.timestamp.toLocalDate() == entry.timestamp.toLocalDate() }
         entries.add(entry)
     }
 
+    //Compara la fecha actual (LocalDate.now()) con la fecha guardada en cada registro (it.timestamp.toLocalDate())
     override fun getTodayMoodEntry(): MoodEntry? {
-        val today = LocalDateTime.now()
+        val today = LocalDate.now()
         return entries.find { it.timestamp.toLocalDate() == today }
     }
 

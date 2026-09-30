@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+//Reproduce los fotogramas(Animacione frame-by-frame) del personaje seleccionado usando corrutinas
 @Composable
 fun AnimatedMoodIcon(
     frames: List<Int>,

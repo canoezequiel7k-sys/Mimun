@@ -6,10 +6,16 @@ from app.domain.errors import AuthenticationError, EmailAlreadyRegisteredError
 
 
 class FakePasswordHasher:
+    dummy_hash = "hashed:mimun-dummy-login-password"
+
+    def __init__(self) -> None:
+        self.verified_hashes: list[str] = []
+
     def hash(self, plain: str) -> str:
         return f"hashed:{plain}"
 
     def verify(self, plain: str, hashed: str) -> bool:
+        self.verified_hashes.append(hashed)
         return hashed == f"hashed:{plain}"
 
 
@@ -68,3 +74,8 @@ class FakeRefreshTokenRepository:
             return False
         token.revoked_at = now
         return True
+
+    def revoke_all_for_user(self, user_id: UUID, now: dt.datetime) -> None:
+        for token in self.items.values():
+            if token.user_id == user_id and token.revoked_at is None:
+                token.revoked_at = now

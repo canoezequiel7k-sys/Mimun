@@ -9,6 +9,7 @@ from app.application.use_cases.mood_entries import (
     MoodEntryUseCases,
     UpsertMoodEntryCommand,
 )
+from app.domain.entities import MoodEntry
 from app.domain.errors import DomainValidationError, MoodEntryAlreadyExistsError, NotFoundError
 from app.domain.value_objects import MoodType
 from tests.fakes import FakeClock, FakeMoodEntryRepository
@@ -127,6 +128,22 @@ def test_upsert_creates_with_the_client_id_and_needs_a_date(use_cases: MoodEntry
 
     result = use_cases.upsert.execute(_upsert(client_id, date=dt.date(2026, 9, 29)))
     assert result.created is True and result.entry.id == client_id
+
+
+def test_upsert_does_not_reveal_an_id_owned_by_another_user(clock: FakeClock) -> None:
+    repository = FakeMoodEntryRepository()
+    foreign_entry = MoodEntry.create(
+        user_id=uuid4(),
+        date=dt.date(2026, 9, 29),
+        mood=MoodType.GOOD,
+        note=None,
+        now=NOW,
+    )
+    repository.add(foreign_entry)
+    use_cases = MoodEntryUseCases.build(repository, clock)
+
+    with pytest.raises(NotFoundError):
+        use_cases.upsert.execute(_upsert(foreign_entry.id, date=foreign_entry.date))
 
 
 def test_upsert_is_idempotent(use_cases: MoodEntryUseCases) -> None:

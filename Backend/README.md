@@ -9,11 +9,11 @@ API REST de Mimun, hecha con **Python + FastAPI + PostgreSQL**, siguiendo **Clea
 
 ## 📍 Estado actual
 
-🟡 **Fases B0 a B4 y B6 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries` y la autenticación (`/auth/register`, `/login`, `/refresh`, `/logout`): 93 tests en verde, migraciones `0001` y `0002` aplicadas.
+🟡 **Fases B0 a B4 y B6 a B8 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries`, autenticación y sincronización: 129 tests en verde, migraciones `0001` a `0004` aplicadas.
 
 Con `AUTH_ENABLED=true` los endpoints de datos exigen `Authorization: Bearer <access_token>`. Con `AUTH_ENABLED=false` la API usa un usuario fijo de desarrollo, sin token (así se trabaja la Fase F6 del Frontend). En producción `AUTH_ENABLED=true` es obligatorio y la app se niega a arrancar si no.
 
-**Pendiente:** sincronización (B7, la siguiente), estadísticas (B5, opcional), calidad y endurecimiento (B8) y deploy (B9). Falta validar los endpoints desde la app Android (F6).
+**Pendiente:** estadísticas (B5, opcional) y deploy (B9). Falta validar los endpoints desde la app Android (F6).
 
 > Actualizar esta sección cuando cambie el estado real.
 
@@ -45,7 +45,7 @@ Con `AUTH_ENABLED=true` los endpoints de datos exigen `Authorization: Bearer <ac
 | Validación de la API | Pydantic v2 (solo en `presentation`) |
 | Configuración | pydantic-settings (`.env`) |
 | Auth | JWT + hash de contraseñas (argon2 o bcrypt) |
-| Tests | pytest + httpx |
+| Tests | pytest + httpx2 |
 | Lint y formato | ruff |
 | Verificación de capas | import-linter |
 | Contenedores | Docker Compose (PostgreSQL en desarrollo) |

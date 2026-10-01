@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, Response
 
 from app.application.use_cases.auth import AuthResult, AuthUseCases, TokenPair
 from app.presentation.api.deps import get_auth_use_cases
+from app.presentation.api.rate_limit import limiter
 from app.presentation.api.schemas.auth import (
     AuthResponse,
     CredentialsRequest,
@@ -35,20 +36,32 @@ def _auth_response(result: AuthResult) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=201)
-def register(body: CredentialsRequest, use_cases: UseCases) -> AuthResponse:
+@limiter.limit("5/hour")
+def register(
+    request: Request, response: Response, body: CredentialsRequest, use_cases: UseCases
+) -> AuthResponse:
     return _auth_response(use_cases.register.execute(email=body.email, password=body.password))
 
 
 @router.post("/login", response_model=AuthResponse)
-def login(body: CredentialsRequest, use_cases: UseCases) -> AuthResponse:
+@limiter.limit("10/minute")
+def login(
+    request: Request, response: Response, body: CredentialsRequest, use_cases: UseCases
+) -> AuthResponse:
     return _auth_response(use_cases.login.execute(email=body.email, password=body.password))
 
 
 @router.post("/refresh", response_model=TokenResponse)
-def refresh(body: RefreshTokenRequest, use_cases: UseCases) -> TokenResponse:
+@limiter.limit("30/minute")
+def refresh(
+    request: Request, response: Response, body: RefreshTokenRequest, use_cases: UseCases
+) -> TokenResponse:
     return _token_response(use_cases.refresh.execute(body.refresh_token))
 
 
 @router.post("/logout", status_code=204)
-def logout(body: RefreshTokenRequest, use_cases: UseCases) -> None:
+@limiter.limit("30/minute")
+def logout(
+    request: Request, response: Response, body: RefreshTokenRequest, use_cases: UseCases
+) -> None:
     use_cases.logout.execute(body.refresh_token)

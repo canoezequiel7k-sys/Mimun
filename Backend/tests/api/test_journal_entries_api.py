@@ -1,13 +1,20 @@
 import datetime as dt
+import logging
 from collections.abc import Iterator
-from uuid import uuid4
+from io import StringIO
+from typing import Annotated
+from uuid import UUID, uuid4
 
 import pytest
+from fastapi import Depends
 from fastapi.testclient import TestClient
 
 from app.application.use_cases.journal_entries import JournalEntryUseCases
 from app.domain.entities import MoodEntry
 from app.domain.value_objects import MoodType
+from app.infrastructure.config import get_settings
+from app.infrastructure.security.jwt_token_service import JwtTokenService
+from app.infrastructure.structured_logging import JsonFormatter
 from app.main import create_app
 from app.presentation.api.deps import get_current_user_id, get_journal_entry_use_cases
 from tests.fakes import FakeClock, FakeJournalEntryRepository, FakeMoodEntryRepository
@@ -32,6 +39,25 @@ def client(mood_repo: FakeMoodEntryRepository) -> Iterator[TestClient]:
         yield test_client
 
 
+@pytest.fixture
+def authenticated_client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+    monkeypatch.setenv("AUTH_ENABLED", "true")
+    get_settings.cache_clear()
+    app = create_app()
+    journal_repo = FakeJournalEntryRepository()
+    mood_repo = FakeMoodEntryRepository()
+
+    def journal_use_cases(
+        user_id: Annotated[UUID, Depends(get_current_user_id)],
+    ) -> JournalEntryUseCases:
+        return JournalEntryUseCases.build(journal_repo, mood_repo, FakeClock(NOW))
+
+    app.dependency_overrides[get_journal_entry_use_cases] = journal_use_cases
+    with TestClient(app) as test_client:
+        yield test_client
+    get_settings.cache_clear()
+
+
 def _mood_entry_id(repo: FakeMoodEntryRepository) -> str:
     entry = MoodEntry.create(
         user_id=USER_ID, date=dt.date(2026, 9, 29), mood=MoodType.GOOD, note=None, now=NOW
@@ -43,6 +69,16 @@ def _mood_entry_id(repo: FakeMoodEntryRepository) -> str:
 def _create(client: TestClient, **overrides: object):
     body = {"title": "Sobre el trabajo", "content": "Hoy fue un buen día"} | overrides
     return client.post(BASE, json=body)
+
+
+def _authorization(user_id: UUID) -> dict[str, str]:
+    settings = get_settings()
+    tokens = JwtTokenService(
+        secret_key=settings.secret_key,
+        access_token_minutes=30,
+        refresh_token_days=14,
+    )
+    return {"Authorization": f"Bearer {tokens.create_access_token(user_id)}"}
 
 
 def test_create_returns_201_with_contract_shape(client: TestClient) -> None:
@@ -61,6 +97,59 @@ def test_create_returns_201_with_contract_shape(client: TestClient) -> None:
     }
     assert data["mood_entry_id"] is None
     assert data["created_at"] == "2026-09-29T21:00:00Z"
+
+
+def test_request_logging_does_not_include_journal_content(
+    client: TestClient,
+) -> None:
+    private_text = "contenido-privado-7398c8"
+    output = StringIO()
+    handler = logging.StreamHandler(output)
+    handler.setFormatter(JsonFormatter())
+    logger = logging.getLogger("app")
+    logger.addHandler(handler)
+    try:
+        _create(client, content=private_text)
+    finally:
+        logger.removeHandler(handler)
+
+    logs = output.getvalue()
+    assert private_text not in logs
+    assert '"message": "http_request"' in logs
+    assert '"path": "/api/v1/journal-entries"' in logs
+
+
+def test_api_isolates_journal_entries_between_real_tokens(
+    authenticated_client: TestClient,
+) -> None:
+    owner_id, other_id = uuid4(), uuid4()
+    owner_headers = _authorization(owner_id)
+    other_headers = _authorization(other_id)
+
+    created = authenticated_client.post(
+        BASE,
+        json={"title": "Privado", "content": "Solo debe verlo el autor"},
+        headers=owner_headers,
+    )
+    assert created.status_code == 201
+    entry_id = created.json()["id"]
+
+    assert authenticated_client.get(f"{BASE}/{entry_id}", headers=other_headers).status_code == 404
+    assert authenticated_client.get(BASE, headers=other_headers).json()["total"] == 0
+    assert (
+        authenticated_client.delete(f"{BASE}/{entry_id}", headers=other_headers).status_code == 404
+    )
+    assert (
+        authenticated_client.put(
+            f"{BASE}/{entry_id}",
+            json={"mood_entry_id": None, "content": "modificación no autorizada"},
+            headers=other_headers,
+        ).status_code
+        == 404
+    )
+    own_entry = authenticated_client.get(f"{BASE}/{entry_id}", headers=owner_headers)
+    assert own_entry.status_code == 200
+    assert own_entry.json()["content"] == "Solo debe verlo el autor"
 
 
 def test_create_linked_to_a_mood_entry(

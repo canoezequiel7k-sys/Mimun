@@ -49,3 +49,14 @@ class SqlAlchemyRefreshTokenRepository:
         )
         self._session.commit()
         return result.rowcount > 0
+
+    def revoke_all_for_user(self, user_id: UUID, now: dt.datetime) -> None:
+        self._session.execute(
+            update(RefreshTokenModel)
+            .where(
+                RefreshTokenModel.user_id == user_id,
+                RefreshTokenModel.revoked_at.is_(None),
+            )
+            .values(revoked_at=now)
+        )
+        self._session.commit()

@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _INSECURE_SECRET_KEY = "cambiar-por-un-valor-largo-y-aleatorio"
@@ -15,9 +15,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://mimun:mimun@localhost:5432/mimun"
     test_database_url: str = "postgresql+psycopg://mimun:mimun@localhost:5432/mimun_test"
     secret_key: str = _INSECURE_SECRET_KEY
-    access_token_expire_minutes: int = 30
-    refresh_token_expire_days: int = 14
+    access_token_expire_minutes: int = Field(default=30, gt=0)
+    refresh_token_expire_days: int = Field(default=14, gt=0)
     auth_enabled: bool = True
+    cors_origins: list[str] = Field(default_factory=list)
     environment: Literal["development", "test", "production"] = "development"
 
     @model_validator(mode="after")

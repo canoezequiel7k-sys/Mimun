@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from app.application.use_cases.auth import AuthUseCases
 from app.main import create_app
 from app.presentation.api.deps import get_auth_use_cases
+from app.presentation.api.rate_limit import limiter
 from tests.fakes import FakeClock
 from tests.fakes_auth import (
     FakePasswordHasher,
@@ -21,6 +22,7 @@ CREDENTIALS = {"email": "Ana@Example.com", "password": "una-clave-larga"}
 
 @pytest.fixture
 def client() -> Iterator[TestClient]:
+    limiter.reset()
     app = create_app()
     use_cases = AuthUseCases.build(
         users=FakeUserRepository(),
@@ -32,6 +34,7 @@ def client() -> Iterator[TestClient]:
     app.dependency_overrides[get_auth_use_cases] = lambda: use_cases
     with TestClient(app) as test_client:
         yield test_client
+    limiter.reset()
 
 
 def test_register_returns_201_with_contract_shape(client: TestClient) -> None:
@@ -65,6 +68,17 @@ def test_login_ok_and_wrong_password(client: TestClient) -> None:
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "UNAUTHORIZED"
     assert response.headers["WWW-Authenticate"] == "Bearer"
+
+
+def test_login_rate_limit_uses_unified_error_and_retry_after(client: TestClient) -> None:
+    for _ in range(10):
+        response = client.post(f"{BASE}/login", json=CREDENTIALS)
+        assert response.status_code == 401
+
+    limited = client.post(f"{BASE}/login", json=CREDENTIALS)
+    assert limited.status_code == 429
+    assert limited.json()["error"]["code"] == "TOO_MANY_REQUESTS"
+    assert int(limited.headers["Retry-After"]) > 0
 
 
 def test_refresh_rotates_and_the_old_token_stops_working(client: TestClient) -> None:

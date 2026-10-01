@@ -15,6 +15,14 @@ class JournalEntryModel(Base):
         Index("ix_journal_entries_user_id_created_at", "user_id", text("created_at DESC")),
         Index("ix_journal_entries_mood_entry_id", "mood_entry_id"),
         Index("ix_journal_entries_user_id_updated_at", "user_id", "updated_at"),
+        Index(
+            "ix_journal_entries_user_mood_created_active",
+            "user_id",
+            "mood_entry_id",
+            text("created_at DESC"),
+            "id",
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)

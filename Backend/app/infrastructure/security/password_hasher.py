@@ -5,6 +5,7 @@ from argon2.exceptions import InvalidHashError, VerificationError
 class Argon2PasswordHasher:
     def __init__(self) -> None:
         self._hasher = PasswordHasher()
+        self.dummy_hash = self._hasher.hash("mimun-dummy-login-password")
 
     def hash(self, plain: str) -> str:
         return self._hasher.hash(plain)

@@ -1,7 +1,9 @@
 import jwt
 import pytest
+from pydantic import ValidationError
 
 from app.domain.errors import AuthenticationError
+from app.infrastructure.config import Settings
 from app.infrastructure.security.jwt_token_service import JwtTokenService
 from app.infrastructure.security.password_hasher import Argon2PasswordHasher
 
@@ -53,3 +55,14 @@ def test_argon2_hasher_verifies_and_never_raises() -> None:
     assert hasher.verify("una-clave-larga", hashed) is True
     assert hasher.verify("otra-clave-larga", hashed) is False
     assert hasher.verify("una-clave-larga", "no-es-un-hash") is False
+
+
+@pytest.mark.parametrize("setting", ["access_token_expire_minutes", "refresh_token_expire_days"])
+def test_token_expirations_must_be_positive(setting: str) -> None:
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, **{setting: 0})
+
+
+def test_production_rejects_the_development_secret() -> None:
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, environment="production", auth_enabled=True)

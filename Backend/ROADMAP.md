@@ -4,7 +4,7 @@ Plan de trabajo del backend. Contexto y arquitectura en [README.md](./README.md)
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Frontend
 
-**Estado global:** 🟡 B0 a B4 y B6 terminadas (CRUD de `mood-entries` y `journal-entries` y autenticación, 93 tests en verde). Siguiente: **B7 (sincronización)**. Orden recomendado: **B7 → B8 → B9**, con B5 opcional.
+**Estado global:** 🟡 B0 a B4 y B6 a B8 terminadas (CRUD, autenticación, sincronización y endurecimiento; 129 tests en verde). Siguiente: **B9 (deploy)**. B5 es opcional.
 
 > Una fase se considera terminada solo cuando todos sus checkboxes están marcados **y** sus tests pasan.
 
@@ -100,31 +100,31 @@ Analytics ya funciona en Android sobre Room. Solo hace falta si se quiere calcul
 
 ---
 
-## Fase B7 — Soporte de sincronización ⚪ 🔗
+## Fase B7 — Soporte de sincronización ✅ 🔗
 
-Para que Android trabaje offline y sincronice después.
+Para que Android trabaje offline y sincronice después. Contrato en [`Docs/api/sync.md`](../Docs/api/sync.md). Migración `0003`.
 
 - [x] Aceptar IDs generados por el cliente (UUID).
-- [ ] Definir la idempotencia de `POST` ante reintentos y documentarla. 🔗
-- [ ] Definir la estrategia de conflictos (ej.: gana `updated_at` más reciente) y documentarla. 🔗
-- [ ] Parámetro para obtener cambios desde una fecha (`updated_since`).
-- [ ] Borrado lógico (`deleted_at`) si la sincronización lo requiere.
-- [ ] Tests de escenarios de sincronización.
+- [x] Definir la idempotencia de `POST` ante reintentos y documentarla. 🔗
+- [x] Definir la estrategia de conflictos y documentarla. 🔗
+- [x] Parámetro para obtener cambios desde una fecha (`updated_since`).
+- [x] Borrado lógico (`deleted_at`).
+- [x] Tests de escenarios de sincronización (conflictos, idempotencia, borrado lógico, revivir y `updated_since`).
 
 ---
 
-## Fase B8 — Calidad y endurecimiento ⚪
+## Fase B8 — Calidad y endurecimiento ✅
 
-- [ ] Cobertura razonable de tests en casos de uso y API.
-- [ ] Rate limiting básico en `/auth`.
-- [ ] `login`: igualar el tiempo de respuesta cuando el email no existe (hoy no se calcula ningún hash Argon2, y por tiempo se puede deducir qué emails están registrados).
-- [ ] `refresh`: detectar la reutilización de un refresh token ya revocado y cerrar todas las sesiones de ese usuario.
-- [ ] Test de aislamiento de `journal-entries` a nivel de repositorio y de API con dos tokens reales.
-- [ ] Configuración de CORS.
-- [ ] Logging estructurado (sin contenido de notas ni reflexiones).
-- [ ] Revisión de índices con datos de prueba grandes.
-- [ ] Revisión de seguridad (secretos, hashing, expiración y revocación de tokens).
-- [ ] Resolver la advertencia de deprecación de `httpx` en el `TestClient` de Starlette.
+- [x] Cobertura razonable de tests en casos de uso y API.
+- [x] Rate limiting básico en `/auth`.
+- [x] `login`: igualar el tiempo de respuesta cuando el email no existe (hoy no se calcula ningún hash Argon2, y por tiempo se puede deducir qué emails están registrados).
+- [x] `refresh`: detectar la reutilización de un refresh token ya revocado y cerrar todas las sesiones de ese usuario.
+- [x] Test de aislamiento de `journal-entries` a nivel de repositorio y de API con dos tokens reales.
+- [x] Configuración de CORS.
+- [x] Logging estructurado (sin contenido de notas ni reflexiones).
+- [x] Revisión de índices con datos de prueba grandes.
+- [x] Revisión de seguridad (secretos, hashing, expiración y revocación de tokens).
+- [x] Resolver la advertencia de deprecación de `httpx` en el `TestClient` de Starlette.
 
 ---
 
@@ -154,6 +154,6 @@ Para que Android trabaje offline y sincronice después.
 |---|---|
 | ✅ Fin de B0 | DTOs, Retrofit y repositorios contra un contrato estable. |
 | ✅ Fin de B3 y B4 | Probar F6 (mood y journal) contra una API real. |
-| Fin de B6 | F7: login, sesión y tokens. |
-| Fin de B7 | F7: sincronización offline. |
+| ✅ Fin de B6 | F7: login, sesión y tokens. |
+| ✅ Fin de B7 | F7: sincronización offline. |
 | Fin de B5 (opcional) | Analytics con datos del servidor. |

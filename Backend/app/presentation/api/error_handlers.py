@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.domain.errors import (
@@ -54,6 +55,13 @@ def register_error_handlers(app: FastAPI) -> None:
         details = [{"field": "email", "message": str(exc)}]
         return _error(409, "EMAIL_ALREADY_REGISTERED", str(exc), details)
 
+    @app.exception_handler(RateLimitExceeded)
+    async def _rate_limit_exceeded(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+        response = _error(429, "TOO_MANY_REQUESTS", "Demasiadas peticiones")
+        return request.app.state.limiter._inject_headers(
+            response, request.state.view_rate_limit
+        )
+
     @app.exception_handler(AuthenticationError)
     async def _authentication(request: Request, exc: AuthenticationError) -> JSONResponse:
         return _error(401, "UNAUTHORIZED", str(exc), headers={"WWW-Authenticate": "Bearer"})
@@ -77,5 +85,5 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
-        logger.exception("Error no controlado")
+        logger.error("unhandled_exception", extra={"exception_type": type(exc).__name__})
         return _error(500, "INTERNAL_ERROR", "Error interno del servidor")

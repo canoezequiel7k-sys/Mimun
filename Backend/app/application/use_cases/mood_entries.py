@@ -149,7 +149,12 @@ class UpsertMoodEntry:
                 id=command.entry_id,
                 edited_at=command.edited_at,
             )
-            self._repository.add(entry)
+            try:
+                self._repository.add(entry)
+            except DomainValidationError as exc:
+                if exc.field == "id":
+                    raise NotFoundError(_RESOURCE) from exc
+                raise
             return UpsertResult(entry=entry, created=True)
 
         if command.date is not None and command.date != existing.date:

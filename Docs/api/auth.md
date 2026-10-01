@@ -13,7 +13,9 @@ Convenciones generales, errores y paginación en [README.md](./README.md).
 | `access_token` | JWT (HS256) con `sub` = id del usuario | `ACCESS_TOKEN_EXPIRE_MINUTES` (30 por defecto) | Header `Authorization: Bearer <access_token>` en los endpoints de datos. |
 | `refresh_token` | Texto opaco aleatorio. El servidor guarda solo su hash. | `REFRESH_TOKEN_EXPIRE_DAYS` (14 por defecto) | Se cambia por un par nuevo en `POST /auth/refresh`. |
 
-- **Rotación:** cada `refresh` revoca el refresh token usado y entrega uno nuevo. Un refresh token ya usado o revocado responde `401`.
+- **Rotación:** cada `refresh` revoca el refresh token usado y entrega uno nuevo. Reutilizar un refresh token revocado invalida todas las sesiones activas de esa cuenta y responde `401`.
+- Un refresh token desconocido o vencido también responde `401`; la respuesta no revela si el token existió.
+- Límites por IP: `login` 10 por minuto, `register` 5 por hora y `refresh`/`logout` 30 por minuto. Al superarlos: `429 TOO_MANY_REQUESTS` y header `Retry-After` con los segundos restantes.
 - El cliente guarda ambos tokens de forma segura y nunca los registra en logs.
 
 ### Endpoints de datos protegidos

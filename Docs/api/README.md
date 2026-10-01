@@ -32,6 +32,10 @@ Los endpoints de datos usan `Authorization: Bearer <access_token>`.
 
 > Con `AUTH_ENABLED=true` (obligatorio en producción) el header es obligatorio y su ausencia, o un token inválido o vencido, responde `401`. Con `AUTH_ENABLED=false`, solo en desarrollo, el backend asigna todas las peticiones a un usuario fijo de desarrollo y no exige el header. El contrato de los endpoints de datos es el mismo en ambos casos. Detalle de login, refresh y logout en [auth.md](./auth.md).
 
+### CORS
+
+El backend permite CORS únicamente para los orígenes exactos configurados por entorno. La lista está vacía por defecto; las apps Android nativas no requieren CORS. Se permiten los métodos de la API y los headers `Authorization` y `Content-Type`; no se habilitan credenciales CORS.
+
 ### Estados emocionales (`mood`)
 
 Valores exactos, en mayúsculas, idénticos a `MoodType` en Android:
@@ -67,6 +71,7 @@ Toda respuesta de error usa esta forma:
 | `404` | `NOT_FOUND` | El recurso no existe **o pertenece a otro usuario**. |
 | `409` | `MOOD_ENTRY_ALREADY_EXISTS` | Ya hay un registro emocional para esa fecha. |
 | `409` | `EMAIL_ALREADY_REGISTERED` | Ya existe una cuenta con ese email. |
+| `429` | `TOO_MANY_REQUESTS` | Se superó el límite de peticiones; la respuesta incluye `Retry-After` en segundos. |
 | `422` | `VALIDATION_ERROR` | Body o query params inválidos, incluido JSON malformado. |
 | `500` | `INTERNAL_ERROR` | Error inesperado. Nunca expone detalles internos. |
 

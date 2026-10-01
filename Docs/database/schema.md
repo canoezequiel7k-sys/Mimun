@@ -77,6 +77,7 @@ Restricciones e índices:
 
 - `(user_id, created_at DESC)`: listado paginado.
 - `(mood_entry_id)`: filtro por registro emocional.
+- `(user_id, mood_entry_id, created_at DESC, id) WHERE deleted_at IS NULL`: listado activo filtrado por registro emocional, con orden estable.
 
 ---
 

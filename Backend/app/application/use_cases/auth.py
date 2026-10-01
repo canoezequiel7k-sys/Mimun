@@ -98,7 +98,10 @@ class LoginUser:
         except DomainValidationError as exc:
             raise AuthenticationError() from exc
         user = self._users.get_by_email(normalized_email)
-        if user is None or not self._hasher.verify(password, user.password_hash):
+        if user is None:
+            self._hasher.verify(password, self._hasher.dummy_hash)
+            raise AuthenticationError()
+        if not self._hasher.verify(password, user.password_hash):
             raise AuthenticationError()
         return AuthResult(user=user, tokens=self._issuer.issue(user.id))
 
@@ -119,9 +122,15 @@ class RefreshSession:
     def execute(self, refresh_token: str) -> TokenPair:
         now = self._clock.now()
         stored = self._refresh_tokens.get_by_hash(self._tokens.hash_refresh_token(refresh_token))
-        if stored is None or not stored.is_usable(now):
+        if stored is None:
+            raise AuthenticationError(_INVALID_SESSION)
+        if stored.revoked_at is not None:
+            self._refresh_tokens.revoke_all_for_user(stored.user_id, now)
+            raise AuthenticationError(_INVALID_SESSION)
+        if not stored.is_usable(now):
             raise AuthenticationError(_INVALID_SESSION)
         if not self._refresh_tokens.revoke(stored.id, now):
+            self._refresh_tokens.revoke_all_for_user(stored.user_id, now)
             raise AuthenticationError(_INVALID_SESSION)
         return self._issuer.issue(stored.user_id)
 

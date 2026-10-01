@@ -26,11 +26,16 @@ def clock() -> FakeClock:
 
 
 @pytest.fixture
-def use_cases(clock: FakeClock) -> AuthUseCases:
+def hasher() -> FakePasswordHasher:
+    return FakePasswordHasher()
+
+
+@pytest.fixture
+def use_cases(clock: FakeClock, hasher: FakePasswordHasher) -> AuthUseCases:
     return AuthUseCases.build(
         users=FakeUserRepository(),
         refresh_tokens=FakeRefreshTokenRepository(),
-        hasher=FakePasswordHasher(),
+        hasher=hasher,
         tokens=FakeTokenService(),
         clock=clock,
     )
@@ -84,13 +89,38 @@ def test_login_failures_share_the_same_error(use_cases: AuthUseCases) -> None:
     assert len(messages) == 1
 
 
+def test_login_verifies_dummy_hash_when_email_does_not_exist(
+    use_cases: AuthUseCases, hasher: FakePasswordHasher
+) -> None:
+    with pytest.raises(AuthenticationError):
+        use_cases.login.execute(email="nadie@example.com", password="una-clave-larga")
+
+    assert hasher.verified_hashes == ["hashed:mimun-dummy-login-password"]
+
+
 def test_refresh_rotates_the_token(use_cases: AuthUseCases) -> None:
     first = _register(use_cases).tokens
     second = use_cases.refresh.execute(first.refresh_token)
     assert second.refresh_token != first.refresh_token
+    third = use_cases.refresh.execute(second.refresh_token)
+    assert third.refresh_token != second.refresh_token
+
+
+def test_reusing_revoked_refresh_token_revokes_all_user_sessions(
+    use_cases: AuthUseCases,
+) -> None:
+    first_session = _register(use_cases).tokens
+    second_session = use_cases.login.execute(
+        email="ana@example.com", password="una-clave-larga"
+    ).tokens
+    rotated_session = use_cases.refresh.execute(first_session.refresh_token)
+
     with pytest.raises(AuthenticationError):
-        use_cases.refresh.execute(first.refresh_token)
-    use_cases.refresh.execute(second.refresh_token)
+        use_cases.refresh.execute(first_session.refresh_token)
+
+    for refresh_token in (second_session.refresh_token, rotated_session.refresh_token):
+        with pytest.raises(AuthenticationError):
+            use_cases.refresh.execute(refresh_token)
 
 
 def test_refresh_rejects_unknown_and_expired_tokens(

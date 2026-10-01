@@ -151,7 +151,12 @@ class UpsertJournalEntry:
                 created_at=command.created_at,
                 edited_at=command.edited_at,
             )
-            self._journal.add(entry)
+            try:
+                self._journal.add(entry)
+            except DomainValidationError as exc:
+                if exc.field == "id":
+                    raise NotFoundError(_RESOURCE) from exc
+                raise
             return JournalUpsertResult(entry=entry, created=True)
 
         incoming = resolve_client_instant(command.edited_at, now, field="edited_at")

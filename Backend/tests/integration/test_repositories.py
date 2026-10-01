@@ -1,4 +1,5 @@
 import datetime as dt
+from dataclasses import replace
 from uuid import uuid4
 
 import pytest
@@ -174,6 +175,24 @@ def test_journal_crud_and_filters(session: Session, user: User) -> None:
     only_linked = journals.list_entries(user.id, mood_entry_id=mood.id, limit=10, offset=0)
     assert [e.id for e in only_linked] == [linked.id]
     assert journals.count_entries(user.id, mood_entry_id=None) == 2
+
+
+def test_journal_repository_isolates_users(session: Session, user: User) -> None:
+    other = make_user(session, "beto@example.com")
+    journals = SqlAlchemyJournalEntryRepository(session)
+    entry = _journal(user)
+    journals.add(entry)
+
+    assert journals.get(other.id, entry.id) is None
+    assert journals.get_any(other.id, entry.id) is None
+    assert journals.list_entries(other.id, mood_entry_id=None, limit=10, offset=0) == []
+    assert journals.count_entries(other.id, mood_entry_id=None) == 0
+    assert journals.list_changes(other.id, updated_since=NOW - HOUR, limit=10, offset=0) == []
+    assert journals.count_changes(other.id, updated_since=NOW - HOUR) == 0
+
+    with pytest.raises(NotFoundError):
+        journals.update(replace(entry, user_id=other.id, content="acceso no autorizado"))
+    assert journals.get(user.id, entry.id) == entry
 
 
 def test_soft_deleting_a_mood_entry_detaches_its_journal_entries(

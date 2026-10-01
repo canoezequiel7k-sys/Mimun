@@ -2,7 +2,7 @@
 
 Convenciones generales, errores y paginación en [README.md](./README.md). Este documento **extiende** [mood-entries.md](./mood-entries.md) y [journal-entries.md](./journal-entries.md); donde difiere, **gana este**.
 
-**Estado:** 🟡 Borrador v1 (Fase B7).
+**Estado:** 🟢 v1 implementada y probada en la Fase B7 (2026-09-30).
 
 ---
 
@@ -44,6 +44,7 @@ Crea o actualiza según el `id`. **Es idempotente**: reenviar lo mismo es seguro
 | Situación | Resultado |
 |---|---|
 | El `id` no existe y se envía `date` (mood) / siempre (journal) | Se crea. `201` con el objeto. |
+| El `id` pertenece a otro usuario | `404 NOT_FOUND`, sin revelar que el registro existe. |
 | El `id` no existe y es un mood **sin** `date` | `404 NOT_FOUND`. |
 | El `id` existe y el `edited_at` entrante es **mayor o igual** al guardado | Se aplica. `200` con el objeto actualizado. Si estaba borrado, **se revive** (`deleted_at` pasa a `null`). |
 | El `id` existe y el `edited_at` entrante es **menor** al guardado | **No se aplica.** `200` con la **versión del servidor**: el cliente la adopta. Si es un borrado, `deleted_at` viene con valor y el cliente borra localmente. |

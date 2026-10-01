@@ -4,6 +4,8 @@ Convenciones generales, errores y paginación en [README.md](./README.md).
 
 **Estado:** 🟡 Borrador v1 (Fase B0).
 
+> ⚠️ **Desde la Fase B7 rige [sync.md](./sync.md)**, que modifica este documento: los objetos incluyen `edited_at` y `deleted_at`, `PUT /{id}` es un *upsert* (crea si no existe, con `date`), `DELETE` es un borrado lógico idempotente, y el listado acepta `updated_since`. Donde difieran, gana `sync.md`.
+
 Un usuario tiene **como máximo un registro por día** (`UNIQUE (user_id, date)`).
 
 ---

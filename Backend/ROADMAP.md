@@ -4,7 +4,7 @@ Plan de trabajo del backend. Contexto y arquitectura en [README.md](./README.md)
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Frontend
 
-**Estado global:** 🟡 B0 a B4 terminadas (CRUD de `mood-entries` y `journal-entries`, 65 tests en verde). B6 (autenticación) en curso. Orden recomendado: **B6 → B7 → B8 → B9**, con B5 opcional.
+**Estado global:** 🟡 B0 a B4 y B6 terminadas (CRUD de `mood-entries` y `journal-entries` y autenticación, 93 tests en verde). Siguiente: **B7 (sincronización)**. Orden recomendado: **B7 → B8 → B9**, con B5 opcional.
 
 > Una fase se considera terminada solo cuando todos sus checkboxes están marcados **y** sus tests pasan.
 
@@ -68,20 +68,23 @@ Sin autenticación real: usa un usuario fijo de desarrollo hasta que se active B
 
 ---
 
-## Fase B6 — Autenticación 🟡 🔗
+## Fase B6 — Autenticación ✅ 🔗
 
 Contrato en [`Docs/api/auth.md`](../Docs/api/auth.md). Se hace antes que B5 porque el Frontend (F7) depende de ella.
 
 - [x] Contrato documentado en `Docs/api/auth.md`. 🔗
-- [ ] Ports `PasswordHasher` y `TokenService` + implementaciones (argon2, JWT).
-- [ ] Migración `0002`: tabla `refresh_tokens`.
-- [ ] Casos de uso: registrar, iniciar sesión, refrescar (con rotación) y cerrar sesión.
-- [ ] `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`.
-- [ ] `get_current_user_id` con `Authorization: Bearer`; `AUTH_ENABLED` (obligatorio en producción).
-- [ ] Tests de casos de uso, de API y de protección de endpoints.
-- [ ] Tests de aislamiento: un usuario no ve datos de otro.
+- [x] Ports `PasswordHasher` y `TokenService` + implementaciones (argon2, JWT).
+- [x] Migración `0002`: tabla `refresh_tokens`.
+- [x] Casos de uso: registrar, iniciar sesión, refrescar (con rotación) y cerrar sesión.
+- [x] `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`.
+- [x] `get_current_user_id` con `Authorization: Bearer`; `AUTH_ENABLED` (obligatorio en producción).
+- [x] Tests de casos de uso, de API y de protección de endpoints.
+- [x] Tests de aislamiento: un usuario no ve datos de otro.
+- [x] Probado a mano: con `AUTH_ENABLED=true`, `GET /mood-entries` responde `401` sin token o con token inválido y `200` con token válido.
 
-**Terminada cuando:** con `AUTH_ENABLED=true` ningún endpoint de datos responde sin token válido.
+**Terminada cuando:** con `AUTH_ENABLED=true` ningún endpoint de datos responde sin token válido. ✅ Cumplido (2026-09-30).
+
+Mientras se trabaja la Fase F6 del Frontend, `AUTH_ENABLED=false` en el `.env` local. Pasa a `true` en F7.
 
 ---
 
@@ -114,6 +117,9 @@ Para que Android trabaje offline y sincronice después.
 
 - [ ] Cobertura razonable de tests en casos de uso y API.
 - [ ] Rate limiting básico en `/auth`.
+- [ ] `login`: igualar el tiempo de respuesta cuando el email no existe (hoy no se calcula ningún hash Argon2, y por tiempo se puede deducir qué emails están registrados).
+- [ ] `refresh`: detectar la reutilización de un refresh token ya revocado y cerrar todas las sesiones de ese usuario.
+- [ ] Test de aislamiento de `journal-entries` a nivel de repositorio y de API con dos tokens reales.
 - [ ] Configuración de CORS.
 - [ ] Logging estructurado (sin contenido de notas ni reflexiones).
 - [ ] Revisión de índices con datos de prueba grandes.

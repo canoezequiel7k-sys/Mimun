@@ -13,14 +13,24 @@ class JournalEntryCreateRequest(BaseModel):
     mood_entry_id: UUID | None = None
     title: str | None = None
     content: str
+    created_at: dt.datetime | None = None
+    edited_at: dt.datetime | None = None
 
 
-class JournalEntryUpdateRequest(BaseModel):
+class JournalEntryUpsertRequest(BaseModel):
+    """Body de `PUT /journal-entries/{id}`: crea o actualiza (reemplazo completo)."""
+
     model_config = ConfigDict(extra="forbid")
 
     mood_entry_id: UUID | None = None
     title: str | None = None
     content: str
+    created_at: dt.datetime | None = None  # solo se usa al crear
+    edited_at: dt.datetime | None = None
+
+
+def _utc(value: dt.datetime) -> dt.datetime:
+    return value.astimezone(dt.UTC)
 
 
 class JournalEntryResponse(BaseModel):
@@ -30,6 +40,8 @@ class JournalEntryResponse(BaseModel):
     content: str
     created_at: dt.datetime
     updated_at: dt.datetime
+    edited_at: dt.datetime
+    deleted_at: dt.datetime | None
 
     @classmethod
     def from_entity(cls, entry: JournalEntry) -> "JournalEntryResponse":
@@ -38,8 +50,10 @@ class JournalEntryResponse(BaseModel):
             mood_entry_id=entry.mood_entry_id,
             title=entry.title,
             content=entry.content,
-            created_at=entry.created_at.astimezone(dt.UTC),
-            updated_at=entry.updated_at.astimezone(dt.UTC),
+            created_at=_utc(entry.created_at),
+            updated_at=_utc(entry.updated_at),
+            edited_at=_utc(entry.edited_at),
+            deleted_at=_utc(entry.deleted_at) if entry.deleted_at else None,
         )
 
 

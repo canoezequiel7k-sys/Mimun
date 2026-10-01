@@ -14,6 +14,7 @@ class JournalEntryModel(Base):
         CheckConstraint("char_length(content) BETWEEN 1 AND 10000", name="content_length"),
         Index("ix_journal_entries_user_id_created_at", "user_id", text("created_at DESC")),
         Index("ix_journal_entries_mood_entry_id", "mood_entry_id"),
+        Index("ix_journal_entries_user_id_updated_at", "user_id", "updated_at"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
@@ -29,3 +30,7 @@ class JournalEntryModel(Base):
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    edited_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    deleted_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

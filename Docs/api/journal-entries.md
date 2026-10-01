@@ -4,6 +4,8 @@ Convenciones generales, errores y paginación en [README.md](./README.md).
 
 **Estado:** 🟡 Borrador v1 (Fase B0). Android todavía no implementa esta feature (Fase F3), así que el contrato se puede ajustar según lo que necesite la UI.
 
+> ⚠️ **Desde la Fase B7 rige [sync.md](./sync.md)**, que modifica este documento: los objetos incluyen `edited_at` y `deleted_at`, `PUT /{id}` es un *upsert* (crea si no existe), `DELETE` es un borrado lógico idempotente, el listado acepta `updated_since` y la creación acepta `created_at`. Donde difieran, gana `sync.md`.
+
 ---
 
 ## Objeto `JournalEntry`

@@ -13,7 +13,8 @@ Decisiones de arquitectura y de producto que afectan a más de un módulo. Se ag
 | 0005 | `mood` guardado como `text` + `CHECK` | ✅ |
 | 0006 | Rol de `Auth/`: módulo dentro del backend | ✅ |
 | 0007 | Un recurso ajeno responde `404` | ✅ |
-| 0008 | Sesión: JWT de acceso + refresh token opaco con rotación, y `AUTH_ENABLED` | 🟡 |
+| 0008 | Sesión: JWT de acceso + refresh token opaco con rotación, y `AUTH_ENABLED` | ✅ |
+| 0009 | Sincronización: `updated_at` (servidor) + `edited_at` (cliente), `PUT` upsert y borrado lógico | ✅ |
 
 ---
 
@@ -95,10 +96,26 @@ Detalle en [`Backend/README.md`](../../Backend/README.md).
 
 ---
 
-## 0008 — Sesión: JWT de acceso + refresh token opaco con rotación, y `AUTH_ENABLED` 🟡
+## 0008 — Sesión: JWT de acceso + refresh token opaco con rotación, y `AUTH_ENABLED` ✅
 
 **Decisión:** el `access_token` es un JWT de vida corta (30 min). El `refresh_token` es un texto aleatorio opaco; el servidor guarda solo su hash SHA-256 en `refresh_tokens` y lo **rota** en cada uso. Los repositorios hacen `commit` por operación. Una variable `AUTH_ENABLED` permite trabajar sin token en desarrollo; es obligatoria (`true`) en producción y la app se niega a arrancar si no.
 
 **Motivo:** un refresh token revocable permite cerrar sesión de verdad y limita el daño si se filtra. Con datos tan sensibles como un diario emocional, conviene no depender solo de JWT largos. `AUTH_ENABLED` evita bloquear la Fase F6 del Frontend (integración de mood y journal) mientras todavía no existe la pantalla de login de F7.
 
 **Consecuencias:** una tabla más y una consulta a la base por cada refresh. Los access tokens no se pueden revocar antes de que venzan (por eso duran poco). Detalle en [`Docs/api/auth.md`](../api/auth.md).
+
+**Confirmada por el autor (2026-09-30)** tras implementarla y probarla (Fase B6).
+
+**Pendiente de endurecimiento (B8):** detectar la reutilización de un refresh token revocado y cerrar todas las sesiones del usuario, y limitar la tasa de intentos en `/auth`.
+
+---
+
+## 0009 — Sincronización: `updated_at` (servidor) + `edited_at` (cliente), `PUT` upsert y borrado lógico ✅
+
+**Decisión:** cada registro tiene dos fechas. `updated_at` lo asigna siempre el servidor y sirve solo de cursor de descarga (`updated_since`). `edited_at` lo informa el cliente y resuelve conflictos: gana el cambio con `edited_at` mayor o igual (acotado a la hora del servidor). `PUT /{id}` crea o actualiza, y es idempotente. `DELETE` es un borrado lógico (`deleted_at`) e idempotente. La unicidad de un registro emocional por día vale solo entre los no borrados.
+
+**Motivo:** si el cliente usara su propia fecha como cursor, un cambio hecho offline y subido tarde quedaría "en el pasado" y nunca se descargaría en otro dispositivo. Sin borrado lógico, un dispositivo no puede enterarse de lo que otro borró. Acotar `edited_at` impide que un reloj adelantado gane todos los conflictos.
+
+**Consecuencias:** los objetos de la API ganan `edited_at` y `deleted_at` (el cliente debe ignorar campos desconocidos). Los registros borrados se conservan en la base. Si hay conflicto de día con otro `id`, la API responde `409` y el cliente unifica. Contrato en [`Docs/api/sync.md`](../api/sync.md).
+
+**Confirmada por el autor (2026-09-30).**

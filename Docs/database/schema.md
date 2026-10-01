@@ -103,6 +103,24 @@ Restricciones e índices:
 
 ---
 
+## Cambios de la Fase B7 (migración `0003`)
+
+En `mood_entries` y `journal_entries`:
+
+| Columna | Tipo | Restricciones |
+|---|---|---|
+| `edited_at` | `timestamptz` | `NOT NULL`, default `now()`. Instante de edición informado por el cliente (resuelve conflictos). |
+| `deleted_at` | `timestamptz` | Nulable. Borrado lógico: no nulo = borrado. |
+
+`updated_at` pasa a significar "última escritura aceptada, según el servidor" y es el cursor de descarga.
+
+- En `mood_entries`, `UNIQUE (user_id, date)` pasa a ser un **índice único parcial** (`WHERE deleted_at IS NULL`): los registros borrados no ocupan el día. Mantiene el nombre `uq_mood_entries_user_id_date`.
+- Nuevos índices `(user_id, updated_at)` en ambas tablas, para la descarga de cambios.
+- Al borrar lógicamente un registro emocional, el repositorio deja `mood_entry_id = NULL` en sus reflexiones y actualiza su `updated_at` (el equivalente al antiguo `ON DELETE SET NULL`).
+- Contrato en [`../api/sync.md`](../api/sync.md).
+
+---
+
 ## Pendiente para fases posteriores
 
 | Tema | Fase |

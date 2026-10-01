@@ -1,6 +1,7 @@
+import datetime as dt
 from uuid import UUID
 
-from sqlalchemy import ColumnElement, delete, func, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,8 @@ from app.domain.entities import JournalEntry
 from app.domain.errors import DomainValidationError, NotFoundError
 from app.infrastructure.db.models import JournalEntryModel
 from app.infrastructure.repositories._db_errors import violated_constraint
+
+_RESOURCE = "Reflexión"
 
 
 def _to_model(entry: JournalEntry) -> JournalEntryModel:
@@ -19,6 +22,8 @@ def _to_model(entry: JournalEntry) -> JournalEntryModel:
         content=entry.content,
         created_at=entry.created_at,
         updated_at=entry.updated_at,
+        edited_at=entry.edited_at,
+        deleted_at=entry.deleted_at,
     )
 
 
@@ -31,14 +36,23 @@ def _to_entity(model: JournalEntryModel) -> JournalEntry:
         content=model.content,
         created_at=model.created_at,
         updated_at=model.updated_at,
+        edited_at=model.edited_at,
+        deleted_at=model.deleted_at,
     )
 
 
-def _conditions(user_id: UUID, mood_entry_id: UUID | None) -> list[ColumnElement[bool]]:
-    conditions: list[ColumnElement[bool]] = [JournalEntryModel.user_id == user_id]
+def _active_conditions(user_id: UUID, mood_entry_id: UUID | None) -> list[ColumnElement[bool]]:
+    conditions: list[ColumnElement[bool]] = [
+        JournalEntryModel.user_id == user_id,
+        JournalEntryModel.deleted_at.is_(None),
+    ]
     if mood_entry_id is not None:
         conditions.append(JournalEntryModel.mood_entry_id == mood_entry_id)
     return conditions
+
+
+def _change_conditions(user_id: UUID, updated_since: dt.datetime) -> list[ColumnElement[bool]]:
+    return [JournalEntryModel.user_id == user_id, JournalEntryModel.updated_at > updated_since]
 
 
 class SqlAlchemyJournalEntryRepository:
@@ -50,7 +64,11 @@ class SqlAlchemyJournalEntryRepository:
         self._commit_translating_errors()
 
     def get(self, user_id: UUID, entry_id: UUID) -> JournalEntry | None:
-        model = self._get_model(user_id, entry_id)
+        model = self._find(user_id, entry_id, include_deleted=False)
+        return _to_entity(model) if model else None
+
+    def get_any(self, user_id: UUID, entry_id: UUID) -> JournalEntry | None:
+        model = self._find(user_id, entry_id, include_deleted=True)
         return _to_entity(model) if model else None
 
     def list_entries(
@@ -58,7 +76,7 @@ class SqlAlchemyJournalEntryRepository:
     ) -> list[JournalEntry]:
         stmt = (
             select(JournalEntryModel)
-            .where(*_conditions(user_id, mood_entry_id))
+            .where(*_active_conditions(user_id, mood_entry_id))
             .order_by(JournalEntryModel.created_at.desc(), JournalEntryModel.id)
             .limit(limit)
             .offset(offset)
@@ -69,34 +87,49 @@ class SqlAlchemyJournalEntryRepository:
         stmt = (
             select(func.count())
             .select_from(JournalEntryModel)
-            .where(*_conditions(user_id, mood_entry_id))
+            .where(*_active_conditions(user_id, mood_entry_id))
+        )
+        return self._session.scalar(stmt) or 0
+
+    def list_changes(
+        self, user_id: UUID, *, updated_since: dt.datetime, limit: int, offset: int
+    ) -> list[JournalEntry]:
+        stmt = (
+            select(JournalEntryModel)
+            .where(*_change_conditions(user_id, updated_since))
+            .order_by(JournalEntryModel.updated_at, JournalEntryModel.id)
+            .limit(limit)
+            .offset(offset)
+        )
+        return [_to_entity(model) for model in self._session.scalars(stmt)]
+
+    def count_changes(self, user_id: UUID, *, updated_since: dt.datetime) -> int:
+        stmt = (
+            select(func.count())
+            .select_from(JournalEntryModel)
+            .where(*_change_conditions(user_id, updated_since))
         )
         return self._session.scalar(stmt) or 0
 
     def update(self, entry: JournalEntry) -> None:
-        model = self._get_model(entry.user_id, entry.id)
+        model = self._find(entry.user_id, entry.id, include_deleted=True)
         if model is None:
-            raise NotFoundError("Reflexión")
+            raise NotFoundError(_RESOURCE)
         model.mood_entry_id = entry.mood_entry_id
         model.title = entry.title
         model.content = entry.content
         model.updated_at = entry.updated_at
+        model.edited_at = entry.edited_at
+        model.deleted_at = entry.deleted_at
         self._commit_translating_errors()
 
-    def delete(self, user_id: UUID, entry_id: UUID) -> bool:
-        result = self._session.execute(
-            delete(JournalEntryModel).where(
-                JournalEntryModel.user_id == user_id, JournalEntryModel.id == entry_id
-            )
-        )
-        self._session.commit()
-        return result.rowcount > 0
-
-    def _get_model(self, user_id: UUID, entry_id: UUID) -> JournalEntryModel | None:
-        stmt = select(JournalEntryModel).where(
-            JournalEntryModel.user_id == user_id, JournalEntryModel.id == entry_id
-        )
-        return self._session.scalars(stmt).first()
+    def _find(
+        self, user_id: UUID, entry_id: UUID, *, include_deleted: bool
+    ) -> JournalEntryModel | None:
+        conditions = [JournalEntryModel.user_id == user_id, JournalEntryModel.id == entry_id]
+        if not include_deleted:
+            conditions.append(JournalEntryModel.deleted_at.is_(None))
+        return self._session.scalars(select(JournalEntryModel).where(*conditions)).first()
 
     def _commit_translating_errors(self) -> None:
         try:

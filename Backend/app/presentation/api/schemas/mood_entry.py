@@ -14,13 +14,22 @@ class MoodEntryCreateRequest(BaseModel):
     date: dt.date
     mood: MoodType
     note: str | None = None
+    edited_at: dt.datetime | None = None
 
 
-class MoodEntryUpdateRequest(BaseModel):
+class MoodEntryUpsertRequest(BaseModel):
+    """Body de `PUT /mood-entries/{id}`: crea o actualiza. `date` solo hace falta al crear."""
+
     model_config = ConfigDict(extra="forbid")
 
     mood: MoodType
     note: str | None = None
+    date: dt.date | None = None
+    edited_at: dt.datetime | None = None
+
+
+def _utc(value: dt.datetime) -> dt.datetime:
+    return value.astimezone(dt.UTC)
 
 
 class MoodEntryResponse(BaseModel):
@@ -30,6 +39,8 @@ class MoodEntryResponse(BaseModel):
     note: str | None
     created_at: dt.datetime
     updated_at: dt.datetime
+    edited_at: dt.datetime
+    deleted_at: dt.datetime | None
 
     @classmethod
     def from_entity(cls, entry: MoodEntry) -> "MoodEntryResponse":
@@ -38,8 +49,10 @@ class MoodEntryResponse(BaseModel):
             date=entry.date,
             mood=entry.mood,
             note=entry.note,
-            created_at=entry.created_at.astimezone(dt.UTC),
-            updated_at=entry.updated_at.astimezone(dt.UTC),
+            created_at=_utc(entry.created_at),
+            updated_at=_utc(entry.updated_at),
+            edited_at=_utc(entry.edited_at),
+            deleted_at=_utc(entry.deleted_at) if entry.deleted_at else None,
         )
 
 

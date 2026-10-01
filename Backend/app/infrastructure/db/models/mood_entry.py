@@ -1,7 +1,7 @@
 import datetime as dt
 import uuid
 
-from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, Text, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, Index, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.value_objects import MoodType
@@ -13,7 +13,15 @@ _MOOD_VALUES = ", ".join(f"'{mood.value}'" for mood in MoodType)
 class MoodEntryModel(Base):
     __tablename__ = "mood_entries"
     __table_args__ = (
-        UniqueConstraint("user_id", "date", name="uq_mood_entries_user_id_date"),
+        # Un registro activo por usuario y día: los borrados lógicamente no cuentan.
+        Index(
+            "uq_mood_entries_user_id_date",
+            "user_id",
+            "date",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
+        Index("ix_mood_entries_user_id_updated_at", "user_id", "updated_at"),
         CheckConstraint(f"mood IN ({_MOOD_VALUES})", name="mood"),
         CheckConstraint("char_length(note) <= 500", name="note_length"),
     )
@@ -29,3 +37,7 @@ class MoodEntryModel(Base):
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    edited_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    deleted_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))

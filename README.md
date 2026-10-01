@@ -12,9 +12,9 @@ App Android para registrar cómo te sentís cada día, escribir reflexiones y ve
 | Módulo | Estado | Detalle |
 |---|---|---|
 | 📱 [Frontend](./Frontend/README.md) | 🟡 En progreso | F1 a F5 terminadas (Room incluido). Siguiente: integración con la API (F6). |
-| 🖥️ [Backend](./Backend/README.md) | 🟡 En progreso | B0 a B4 terminadas: API de `mood-entries` y `journal-entries`. Autenticación (B6) en curso. |
+| 🖥️ [Backend](./Backend/README.md) | 🟡 En progreso | B0 a B4 y B6 terminadas: API de `mood-entries` y `journal-entries` y autenticación (JWT + refresh token con rotación). 93 tests en verde. Siguiente: sincronización (B7). |
 | 📚 [Docs](./Docs/) | 🟡 En progreso | Contrato de la API, esquema de base de datos y decisiones. |
-| 🔐 Auth | ✅ Decidido | Módulo dentro del backend, no un servicio aparte ([decisión 0006](./Docs/decisions/README.md)). La carpeta `Auth/` puede eliminarse. |
+| 🔐 Auth | ✅ Hecho | Módulo dentro del backend, no un servicio aparte ([decisión 0006](./Docs/decisions/README.md)). Implementado en B6 ([decisión 0008](./Docs/decisions/README.md)). La carpeta `Auth/` se eliminó. |
 
 > Actualizar esta tabla cuando cambie el estado real.
 
@@ -28,11 +28,10 @@ Mimun --- Tu diario Emocional/
 ├── ROADMAP.md         ← plan general
 ├── Frontend/          ← app Android (Kotlin + Jetpack Compose)
 ├── Backend/           ← API REST (Python + FastAPI + PostgreSQL)
-├── Docs/
-│   ├── api/           ← contrato de la API (fuente de verdad)
-│   ├── database/      ← esquema de base de datos
-│   └── decisions/     ← registro de decisiones
-└── Auth/              ← sin uso definido (ver decisión 0006)
+└── Docs/
+    ├── api/           ← contrato de la API (fuente de verdad)
+    ├── database/      ← esquema de base de datos
+    └── decisions/     ← registro de decisiones
 ```
 
 ---
@@ -136,3 +135,4 @@ La app maneja **datos personales sensibles** (estados emocionales y reflexiones)
 
 - El `Frontend/README.md` describe una ruta `Frontend/Android/app/.../com/mimun/`. La ruta real hoy es `Frontend/app/src/main/java/com/canoezequiel/moodflow/`.
 - El `Frontend/README.md` todavía lista `NORMAL` como estado emocional. Debe corregirse.
+- El `Frontend/ROADMAP.md` marca como hechos la inyección de dependencias con Hilt (F1) y los tests de DAO y de repositorio (F4), pero en el código no hay Hilt en `build.gradle.kts` y solo existen los tests de ejemplo de Android Studio. Hay que corregir el roadmap del Frontend o completar esos puntos.

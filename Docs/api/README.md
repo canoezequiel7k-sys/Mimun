@@ -9,6 +9,7 @@ Fuente de verdad de la API REST. **El backend implementa lo que dice acá y el F
 | Registros emocionales | [mood-entries.md](./mood-entries.md) |
 | Reflexiones | [journal-entries.md](./journal-entries.md) |
 | Autenticación | [auth.md](./auth.md) |
+| Sincronización (offline-first) | [sync.md](./sync.md) |
 | Estadísticas | ⚪ se documenta en la Fase B5 |
 
 ---
@@ -29,7 +30,7 @@ Fuente de verdad de la API REST. **El backend implementa lo que dice acá y el F
 
 Los endpoints de datos usan `Authorization: Bearer <access_token>`.
 
-> **Hasta la Fase B6 no hay login real.** Durante B3 y B4 el backend asigna todas las peticiones a un usuario fijo de desarrollo y no exige el header. El contrato de los endpoints de datos **no cambia** cuando se active la auth: solo se vuelve obligatorio el header.
+> Con `AUTH_ENABLED=true` (obligatorio en producción) el header es obligatorio y su ausencia, o un token inválido o vencido, responde `401`. Con `AUTH_ENABLED=false`, solo en desarrollo, el backend asigna todas las peticiones a un usuario fijo de desarrollo y no exige el header. El contrato de los endpoints de datos es el mismo en ambos casos. Detalle de login, refresh y logout en [auth.md](./auth.md).
 
 ### Estados emocionales (`mood`)
 
@@ -61,7 +62,7 @@ Toda respuesta de error usa esta forma:
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
-| `401` | `UNAUTHORIZED` | Falta el token, es inválido o venció (desde B6). |
+| `401` | `UNAUTHORIZED` | Falta el token, es inválido o venció (con `AUTH_ENABLED=true`). |
 | `403` | `FORBIDDEN` | Autenticado pero sin permiso (desde B6). |
 | `404` | `NOT_FOUND` | El recurso no existe **o pertenece a otro usuario**. |
 | `409` | `MOOD_ENTRY_ALREADY_EXISTS` | Ya hay un registro emocional para esa fecha. |

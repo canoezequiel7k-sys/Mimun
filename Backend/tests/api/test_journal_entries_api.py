@@ -49,7 +49,16 @@ def test_create_returns_201_with_contract_shape(client: TestClient) -> None:
     response = _create(client)
     assert response.status_code == 201
     data = response.json()
-    assert set(data) == {"id", "mood_entry_id", "title", "content", "created_at", "updated_at"}
+    assert set(data) == {
+        "id",
+        "mood_entry_id",
+        "title",
+        "content",
+        "created_at",
+        "updated_at",
+        "edited_at",
+        "deleted_at",
+    }
     assert data["mood_entry_id"] is None
     assert data["created_at"] == "2026-09-29T21:00:00Z"
 

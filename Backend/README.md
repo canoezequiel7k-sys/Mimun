@@ -9,11 +9,11 @@ API REST de Mimun, hecha con **Python + FastAPI + PostgreSQL**, siguiendo **Clea
 
 ## 📍 Estado actual
 
-🟡 **Fases B0 a B4 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries` (65 tests en verde, migración `0001` aplicada). **Fase B6 (autenticación) en curso.**
+🟡 **Fases B0 a B4 y B6 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries` y la autenticación (`/auth/register`, `/login`, `/refresh`, `/logout`): 93 tests en verde, migraciones `0001` y `0002` aplicadas.
 
-Hoy la API puede correr **sin autenticación real**: con `AUTH_ENABLED=false` usa un usuario fijo de desarrollo. En producción `AUTH_ENABLED=true` es obligatorio.
+Con `AUTH_ENABLED=true` los endpoints de datos exigen `Authorization: Bearer <access_token>`. Con `AUTH_ENABLED=false` la API usa un usuario fijo de desarrollo, sin token (así se trabaja la Fase F6 del Frontend). En producción `AUTH_ENABLED=true` es obligatorio y la app se niega a arrancar si no.
 
-**Pendiente:** estadísticas (B5, opcional), sincronización (B7), calidad (B8) y deploy (B9). Falta validar los endpoints desde la app Android (F6).
+**Pendiente:** sincronización (B7, la siguiente), estadísticas (B5, opcional), calidad y endurecimiento (B8) y deploy (B9). Falta validar los endpoints desde la app Android (F6).
 
 > Actualizar esta sección cuando cambie el estado real.
 
@@ -92,7 +92,7 @@ Reglas de la arquitectura:
 Backend/
 ├── app/
 │   ├── domain/
-│   │   ├── entities/              # User, MoodEntry, JournalEntry
+│   │   ├── entities/              # User, MoodEntry, JournalEntry, RefreshToken
 │   │   ├── value_objects/         # MoodType
 │   │   ├── repositories/          # Interfaces (Protocol)
 │   │   └── errors.py              # Errores de dominio
@@ -101,7 +101,7 @@ Backend/
 │   │   └── use_cases/             # Un módulo por recurso
 │   │       ├── mood_entries.py
 │   │       ├── journal_entries.py
-│   │       ├── auth.py            # B6
+│   │       ├── auth.py
 │   │       └── stats.py           # B5 (opcional)
 │   ├── infrastructure/
 │   │   ├── config.py              # Settings desde variables de entorno
@@ -179,7 +179,8 @@ El contrato oficial está en [`../Docs/api/`](../Docs/api/README.md):
 
 - [`mood-entries.md`](../Docs/api/mood-entries.md)
 - [`journal-entries.md`](../Docs/api/journal-entries.md)
-- Auth y estadísticas: se documentan en B5 y B6.
+- [`auth.md`](../Docs/api/auth.md)
+- Estadísticas: se documentan en B5.
 
 | Método | Endpoint | Auth |
 |---|---|---|
@@ -216,11 +217,15 @@ El contrato oficial está en [`../Docs/api/`](../Docs/api/README.md):
 
 ```env
 DATABASE_URL=postgresql+psycopg://mimun:mimun@localhost:5432/mimun
+TEST_DATABASE_URL=postgresql+psycopg://mimun:mimun@localhost:5432/mimun_test
 SECRET_KEY=cambiar-por-un-valor-largo-y-aleatorio
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=14
 ENVIRONMENT=development
+AUTH_ENABLED=false
 ```
+
+En producción (`ENVIRONMENT=production`) la app no arranca si `SECRET_KEY` es la de ejemplo o tiene menos de 32 caracteres, ni si `AUTH_ENABLED` es `false`.
 
 Nunca se commitea `.env`; solo `.env.example`.
 
@@ -259,7 +264,7 @@ docker compose up -d db            # solo si vas a usar la base de datos
 uvicorn app.main:app --reload
 ```
 
-> Las migraciones (`alembic upgrade head`) se agregan al flujo en la Fase B2. Hasta entonces la API levanta sin base de datos.
+> Antes de levantar la API por primera vez (y después de cada migración nueva) ejecutar `alembic upgrade head`.
 
 - API: `http://localhost:8000`
 - Swagger: `http://localhost:8000/docs`

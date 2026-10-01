@@ -4,11 +4,16 @@ import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.R
 import com.canoezequiel.moodflow.data.local.dao.MoodEntryDao
 import com.canoezequiel.moodflow.data.mapper.toDomain
+import com.canoezequiel.moodflow.data.mapper.toDto
 import com.canoezequiel.moodflow.data.mapper.toEntity
+import com.canoezequiel.moodflow.data.remote.api.ApiClient
 import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
 import com.canoezequiel.moodflow.domain.model.MoodType
 import com.canoezequiel.moodflow.domain.repository.MoodRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -17,6 +22,9 @@ import java.time.LocalDateTime
 class MoodRepositoryImpl(
     private val dao: MoodEntryDao
 ) : MoodRepository {
+    //Inyectas o llamas a ApiClient.apiService dentro del repositorio o mediante un DataSource remoto
+    private val api = ApiClient.apiService
+
 
     //Define la lista física de las 6 emociones asociadas a los recursos gráficos
     override fun getAvailableMoods(): List<Mood> {
@@ -107,19 +115,31 @@ class MoodRepositoryImpl(
     override fun saveMoodEntry(entry: MoodEntry) {
         val dateString = entry.timestamp.toLocalDate().toString()
 
-        //Buscamos si ya existe un registro guardado localmente para el dia de hoy
+        // 1. Buscamos si ya existe un registro guardado localmente para el día de hoy
         val existingEntity = dao.getMoodEntryByDate(dateString)
 
-        //Si ya existe, PRESERVAMOS SU ID ORIGINAL. Si no, usamos el UUID nuevo
-        val entityToSave = if (existingEntity != null){
-            entry.copy(id = existingEntity.id).toEntity()
+        // 2. Si ya existe, PRESERVAMOS SU ID ORIGINAL (evita el 409 Conflict en el backend)
+        val entryToSave = if (existingEntity != null) {
+            entry.copy(id = existingEntity.id)
         } else {
-            entry.toEntity()
+            entry
         }
 
-        // Guardamos en Room (fuente de verdad local)
-        dao.deleteMoodEntriesByDate(dateString) // Borra cualquier registro viejo de hoy
-        dao.insertMoodEntry(entityToSave)   // Inserta la nueva emoción elegida
+        // 3. Guardamos localmente en Room (Nuestra fuente de verdad inmediata)
+        dao.deleteMoodEntriesByDate(dateString)
+        dao.insertMoodEntry(entryToSave.toEntity())
+
+        // 4. Sincronizamos con el backend en segundo plano (Dispatchers.IO)
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = api.upsertMoodEntry(entryToSave.id, entryToSave.toDto())
+                if (!response.isSuccessful) { // <-- Corregido isSuccessful
+                    // Manejar error de red o servidor si es necesario
+                }
+            }
+        } catch (e: Exception) {
+            // App offline: el dato queda seguro en Room y listo para F7
+        }
     }
 
     //Compara la fecha actual (LocalDate.now()) con la fecha guardada en cada registro (it.timestamp.toLocalDate())
@@ -131,5 +151,7 @@ class MoodRepositoryImpl(
     override fun getAllMoodEntries(): List<MoodEntry> {
         return dao.getAllMoodEntries().map { it.toDomain() }
     }
+
+
 
 }

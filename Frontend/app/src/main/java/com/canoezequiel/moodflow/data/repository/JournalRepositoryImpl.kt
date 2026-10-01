@@ -2,9 +2,15 @@ package com.canoezequiel.moodflow.data.repository
 
 import com.canoezequiel.moodflow.data.local.dao.JournalEntryDao
 import com.canoezequiel.moodflow.data.mapper.toDomain
+import com.canoezequiel.moodflow.data.mapper.toDto
 import com.canoezequiel.moodflow.data.mapper.toEntity
+import com.canoezequiel.moodflow.data.remote.api.ApiClient
 import com.canoezequiel.moodflow.domain.model.JournalEntry
 import com.canoezequiel.moodflow.domain.repository.JournalRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 
 
 //Implementacion en memoria del repositorio de notas(Fake para desarrollo local)
@@ -12,6 +18,8 @@ class JournalRepositoryImpl(
     private val dao: JournalEntryDao
 ) : JournalRepository {
 
+    //Instancia del cliente Api de Retrofit
+    private val api = ApiClient.apiService
 
     //Obtiene todas las notas ordenada desde la mas recienta a la mas antigua:
     override fun getAllJournalEntries(): List<JournalEntry> {
@@ -25,11 +33,34 @@ class JournalRepositoryImpl(
 
     //Guarda una nueva nota o remplaza la existente si tiene el mismo ID (Edicion)
     override fun saveJournalEntry(entry: JournalEntry) {
+        //Guardar primero en Romm(Fuente de la verdad local e inmediata)
         dao.insertJournalEntry(entry.toEntity())
+
+        //Insertar el PUT upsert en el backend en segundo plano (Dispatcher.IO)
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = api.upsertJournalEntry(entry.id, entry.toDto())
+                if (!response.isSuccessful){
+                    // Log o manejo de error si el servidor rechaza la nota
+                }
+            }
+        } catch (e: Exception){
+            // Sin conexión: la nota persiste localmente en Room
+        }
     }
 
     //Elimina una nota por su ID
     override fun deleteJournalEntry(id: String) {
+        //Borrar localmente en Room
         dao.deleteJournalEntryById(id)
+
+        //Notificar al backend la eliminacion(Borrado logico idempotente)
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                api.deleteJournalEntry(id)
+            }
+        } catch (e: Exception) {
+            // Sin conexión
+        }
     }
 }

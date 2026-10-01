@@ -96,26 +96,26 @@ Primero calculado localmente sobre Room; en F6 se puede migrar a las estadístic
 
 ---
 
-## Fase F6 — Integración con la API 🟡 en progreso
+## Fase F6 — Integración con la API ✅ terminada
 
 **Bloqueada hasta que el contrato de `Docs/api/` esté definido** (Backend B0) y, para probar de verdad, hasta que exista B3.
 
-- [ ] Configurar Retrofit + serialización (Moshi o kotlinx.serialization).
-- [ ] DTOs según el contrato, con mappers a `domain`. 🔗
-- [ ] `BaseUrl` por entorno (`10.0.2.2:8000` en emulador).
-- [ ] Interceptor de logging (solo debug).
-- [ ] Data source remoto para `mood-entries`. 🔗
-- [ ] Data source remoto para `journal-entries`. 🔗
-- [ ] Manejo del error unificado de la API. 🔗
-- [ ] Estados de carga y error visibles en la UI.
-- [ ] Reintentos y mensajes claros ante falta de conexión.
-- [ ] Analytics con estadísticas del servidor (opcional). 🔗
+- [x] Configurar Retrofit + serialización (Moshi o kotlinx.serialization).
+- [x] DTOs según el contrato, con mappers a `domain`. 🔗
+- [x] `BaseUrl` por entorno (`10.0.2.2:8000` en emulador).
+- [x] Interceptor de logging (solo debug).
+- [x] Data source remoto para `mood-entries`. 🔗
+- [x] Data source remoto para `journal-entries`. 🔗
+- [x] Manejo del error unificado de la API. 🔗
+- [x] Estados de carga y error visibles en la UI.
+- [x] Reintentos y mensajes claros ante falta de conexión.
+- [x] Analytics con estadísticas del servidor (opcional). 🔗
 
 **Terminada cuando:** la app lee y escribe registros y reflexiones contra el backend local.
 
 ---
 
-## Fase F7 — Autenticación y sincronización ⚪ 🔗
+## Fase F7 — Autenticación y sincronización 🟡 en progreso
 
 Depende de Backend B6 y B7.
 

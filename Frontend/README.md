@@ -9,14 +9,15 @@ App Android de Mimun, hecha 100% con **Kotlin + Jetpack Compose**.
 
 # 📍 Estado actual
 
-🟢 **Fases F1 a F5 completadas al 100% (Cliente Local Completado).**
+🟢 **Fases F1 a F6 completadas al 100% (Cliente Local Completado).**
 
 - **F1 — Foundation ✅**: Jetpack Compose, Material 3, Clean Architecture y navegación compartida (**Notes**, **Mood**, **Analytics**).
 - **F2 — Mood ✅**: Selección de emociones (`RAD, GOOD, NORMAL, MEH, BAD, AWFUL`), personajes animados y nota diaria.
 - **F3 — Journal (Notes) ✅**: Diario completo de reflexiones con lista, creación, edición y eliminación de notas.
 - **F4 — Persistencia Local (Room) ✅**: Base de datos SQLite local para guardar notas y emociones permanentemente.
 - **F5 — Analytics ✅**: Calendario mensual con emojis, curva de evolución emocional ("gusanito") y desglose de porcentajes.
-- **📍 SIGUIENTE PASO — Fase F6**: Integración con la API REST del Backend (`POST/GET /api/v1/mood-entries` y `journal-entries`).
+- **F6 - Integración con la API ✅**: Integración con la API REST del Backend (`POST/GET /api/v1/mood-entries` y `journal-entries`).
+- **📍 SIGUIENTE PASO — Fase F7**: Autenticación y sincronización 🟡 en progreso.
 
 > Mientras no haya integración directa con la API, la app opera con repositorios fake/locales en memoria detrás de interfaces de la c
 

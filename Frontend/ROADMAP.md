@@ -120,8 +120,8 @@ Primero calculado localmente sobre Room; en F6 se puede migrar a las estadístic
 Depende de Backend B6 y B7.
 
 - [ ] Pantallas de registro e inicio de sesión.
-- [ ] Almacenamiento seguro de tokens (DataStore cifrado o equivalente).
-- [ ] Interceptor que agrega el token y maneja el refresco.
+- [x] Almacenamiento seguro de tokens (DataStore cifrado o equivalente).
+- [x] Interceptor que agrega el token y maneja el refresco.
 - [ ] Cierre de sesión y limpieza de datos locales.
 - [ ] Manejo de sesión expirada (`401`).
 - [ ] Sincronización: subir cambios locales pendientes. 🔗

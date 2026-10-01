@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 1. Color de fondo cálido -->
+    <item android:drawable="@color/mimun_background" />
+
+    <!-- 2. Tu ícono centrado con tamaño fijo (sin expandirse) -->
+    <item
+        android:drawable="@drawable/ic_icon"
+        android:gravity="center"
+        android:width="120dp"
+        android:height="120dp" />
+</layer-list>

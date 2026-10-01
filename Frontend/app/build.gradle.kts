@@ -73,6 +73,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     //Encryptado de el llavero del sistema operativo
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    //SplashScreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -41,7 +41,7 @@ class FakeTokenService:
     def hash_refresh_token(self, token: str) -> str:
         return f"hash-{token}"
 
-
+#M
 class FakeUserRepository:
     def __init__(self) -> None:
         self.items: dict[UUID, User] = {}

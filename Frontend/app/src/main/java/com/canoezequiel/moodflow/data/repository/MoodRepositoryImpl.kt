@@ -41,7 +41,7 @@ class MoodRepositoryImpl(
                     R.drawable.rad4,
                     R.drawable.rad5
                 ),
-                colorHex = "#4CAF50"
+                colorHex = "#88965C" // MimunGreen
             ),
 
             //GOOD (6 frames)
@@ -57,15 +57,15 @@ class MoodRepositoryImpl(
                     R.drawable.good5,
                     R.drawable.good6
                 ),
-                colorHex = "#8BC34A",
+                colorHex = "#8DA08D", // MimunSage
                 iconSize = 68.dp
             ),
 
-            //MEH (Pendiente de agregar frames)
+            //MEH
             Mood(
                 id = MoodType.MEH.name,
                 name = "meh",
-                iconRes = R.drawable.meh1, // Reemplazar cuando tengas sus drawables
+                iconRes = R.drawable.meh1,
                 frames = listOf(
                     R.drawable.meh1,
                     R.drawable.meh2,
@@ -74,14 +74,14 @@ class MoodRepositoryImpl(
                     R.drawable.meh5,
                     R.drawable.meh6
                 ),
-                colorHex = "#FFC107"
+                colorHex = "#D8DBCC" // MimunPrimaryContainer
             ),
 
-            //Bad(Pendiente de agregar frames)
+            //BAD
             Mood(
                 id = MoodType.BAD.name,
                 name = "bad",
-                iconRes = R.drawable.bad2, // Reemplazar cuando tengas sus drawables
+                iconRes = R.drawable.bad2,
                 frames = listOf(
                     R.drawable.bad1,
                     R.drawable.bad2,
@@ -90,14 +90,14 @@ class MoodRepositoryImpl(
                     R.drawable.bad5,
                     R.drawable.bad6
                 ),
-                colorHex = "#FF9800"
+                colorHex = "#F4CC9B" // MimunAccent
             ),
 
-            //AWFUL (Pendiente de agregar frames)
+            //AWFUL
             Mood(
                 id = MoodType.AWFUL.name,
                 name = "awful",
-                iconRes = R.drawable.awful3, // Reemplazar cuando tengas sus drawables
+                iconRes = R.drawable.awful3,
                 frames = listOf(
                     R.drawable.awful1,
                     R.drawable.awful2,
@@ -106,7 +106,7 @@ class MoodRepositoryImpl(
                     R.drawable.awful5,
                     R.drawable.awful6
                 ),
-                colorHex = "#F44336"
+                colorHex = "#E6B77F" // MimunAccentDark
             )
         )
     }

@@ -106,8 +106,20 @@ class MoodRepositoryImpl(
 
     override fun saveMoodEntry(entry: MoodEntry) {
         val dateString = entry.timestamp.toLocalDate().toString()
+
+        //Buscamos si ya existe un registro guardado localmente para el dia de hoy
+        val existingEntity = dao.getMoodEntryByDate(dateString)
+
+        //Si ya existe, PRESERVAMOS SU ID ORIGINAL. Si no, usamos el UUID nuevo
+        val entityToSave = if (existingEntity != null){
+            entry.copy(id = existingEntity.id).toEntity()
+        } else {
+            entry.toEntity()
+        }
+
+        // Guardamos en Room (fuente de verdad local)
         dao.deleteMoodEntriesByDate(dateString) // Borra cualquier registro viejo de hoy
-        dao.insertMoodEntry(entry.toEntity())   // Inserta la nueva emoción elegida
+        dao.insertMoodEntry(entityToSave)   // Inserta la nueva emoción elegida
     }
 
     //Compara la fecha actual (LocalDate.now()) con la fecha guardada en cada registro (it.timestamp.toLocalDate())

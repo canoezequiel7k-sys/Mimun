@@ -11,7 +11,7 @@ data class OnboardingStep(
 
 //Y la lista (val steps) se define dentro de la pantalla o ViewModel de la UI
 val onboardingSteps = listOf(
-    OnboardingStep(R.drawable.ic_image_one, "¿Cómo te sentís hoy?", "Registrá tus emociones día a día"),
-    OnboardingStep(R.drawable.ic_image_two, "Poné tus pensamientos en palabras.", " Guardá aquello que quieras recordar."),
-    OnboardingStep(R.drawable.ic_image_three, "Entendé tu recorrido.", "Observá tus emociones a través del tiempo.")
+    OnboardingStep(R.drawable.ic_image_one, "How did you feel today?", "Track your emotions day by day."),
+    OnboardingStep(R.drawable.ic_image_two, "Put your thoughts into words.", "Save what you want to remember."),
+    OnboardingStep(R.drawable.ic_image_three, "Understand your journey.", "Observe your emotions over time.")
 )

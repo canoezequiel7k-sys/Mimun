@@ -39,12 +39,16 @@ fun AuthContainer(
     //Si esta en RegisterScreen o LoginScreen
     if (isRegistering){
         RegisterScreen(
-            onNavigateToLogin = {}
+            onNavigateToLogin = { isRegistering = false },
+            onRegisterSuccess = onAuthSuccess,
+            viewModel = viewModel
         )
 
     } else {
         LoginScreen(
-            onNavigateToRegister = {}
+            onNavigateToRegister = { isRegistering = true },
+            onLoginSuccess = onAuthSuccess,
+            viewModel = viewModel
         )
 
     }

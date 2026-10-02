@@ -18,8 +18,18 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(default=30, gt=0)
     refresh_token_expire_days: int = Field(default=14, gt=0)
     auth_enabled: bool = True
-    cors_origins: list[str] = Field(default_factory=list)
+    # Intentos permitidos por IP en /auth/register, /login y /refresh dentro de la ventana.
+    # 0 desactiva el límite.
+    auth_rate_limit_attempts: int = 10
+    auth_rate_limit_window_seconds: int = 60
+    # Orígenes web permitidos (CORS), separados por coma. Vacío = sin CORS.
+    # La app Android no lo necesita: solo un cliente web.
+    cors_origins: str = ""
     environment: Literal["development", "test", "production"] = "development"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @model_validator(mode="after")
     def _validate_production(self) -> "Settings":
@@ -28,6 +38,8 @@ class Settings(BaseSettings):
                 raise ValueError("SECRET_KEY debe ser propia y de al menos 32 caracteres")
             if not self.auth_enabled:
                 raise ValueError("AUTH_ENABLED debe ser true en producción")
+            if "*" in self.cors_origin_list:
+                raise ValueError("CORS_ORIGINS no puede ser '*' en producción")
         return self
 
 

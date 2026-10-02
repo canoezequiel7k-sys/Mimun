@@ -23,7 +23,7 @@ Plan de alto nivel del proyecto. Contexto en el [README raíz](./README.md). El 
 | 6 | **Backend**: contrato, base de datos, CRUD, reflexiones y estadísticas | 🟡 | — | B0 a B5 (B0 a B4 ✅, B5 opcional) |
 | 7 | **Integración**: API, autenticación y sincronización | 🟡 | F6, F7 | B6 ✅, B7 ✅ |
 | 8 | **Testing y refinamiento** | 🟡 | F8 | B8 ✅ |
-| — | **Publicación y deploy** (fuera del roadmap original) | ⚪ | F9 | B9 |
+| — | **Publicación y deploy** (fuera del roadmap original) | 🟡 | F9 | B9 🟡 |
 
 ---
 

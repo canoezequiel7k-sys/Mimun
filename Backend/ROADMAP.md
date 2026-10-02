@@ -4,7 +4,7 @@ Plan de trabajo del backend. Contexto y arquitectura en [README.md](./README.md)
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Frontend
 
-**Estado global:** 🟡 B0 a B4 y B6 a B8 terminadas (CRUD, autenticación, sincronización y endurecimiento; 129 tests en verde). Siguiente: **B9 (deploy)**. B5 es opcional.
+**Estado global:** 🟡 B0 a B4 y B6 a B8 terminadas (CRUD, autenticación, sincronización y endurecimiento; 129 tests en verde). **B9 (deploy) en progreso**. B5 es opcional.
 
 > Una fase se considera terminada solo cuando todos sus checkboxes están marcados **y** sus tests pasan.
 
@@ -128,14 +128,14 @@ Para que Android trabaje offline y sincronice después. Contrato en [`Docs/api/s
 
 ---
 
-## Fase B9 — Deploy ⚪
+## Fase B9 — Deploy 🟡
 
-- [ ] `Dockerfile` del backend.
-- [ ] Configuración por entorno (dev / prod).
+- [x] `Dockerfile` del backend.
+- [x] Configuración por entorno (dev / prod).
 - [ ] Hosting y base de datos gestionada.
-- [ ] Migraciones automáticas en el deploy.
+- [x] Migraciones automáticas en el deploy.
 - [ ] HTTPS y backups de la base de datos.
-- [ ] Documentar el proceso en `Docs/architecture/`.
+- [x] Documentar el proceso en `Docs/architecture/`.
 
 ---
 

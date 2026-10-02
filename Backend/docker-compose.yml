@@ -1,4 +1,20 @@
 services:
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://mimun:mimun@db:5432/mimun
+      SECRET_KEY: ${SECRET_KEY:-cambiar-por-un-valor-largo-y-aleatorio}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      AUTH_ENABLED: ${AUTH_ENABLED:-false}
+      AUTH_RATE_LIMIT_ATTEMPTS: ${AUTH_RATE_LIMIT_ATTEMPTS:-10}
+      AUTH_RATE_LIMIT_WINDOW_SECONDS: ${AUTH_RATE_LIMIT_WINDOW_SECONDS:-60}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      PORT: 8000
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: postgres:16
     container_name: mimun_db

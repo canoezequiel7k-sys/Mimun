@@ -1,11 +1,19 @@
 package com.canoezequiel.moodflow.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.canoezequiel.moodflow.MoodApplication
+import com.canoezequiel.moodflow.data.local.auth.TokenManager
 import com.canoezequiel.moodflow.ui.screens.LoginScreen
 import com.canoezequiel.moodflow.ui.screens.OnboardingScreen
 import com.canoezequiel.moodflow.ui.screens.RegisterScreen
@@ -26,15 +34,35 @@ fun RootNavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = "splash" //Ruta inicial al abri la app
+        startDestination = "splash", //Ruta inicial al abri la app
+        // La pantalla nueva arranca a la derecha (initialOffsetX = { fullWidth }) y se desliza hacia el centro combinándose con fadeIn()
+        enterTransition = {
+            //{it} representa el ancho completo de la pantalla positivo (Borde derecho)
+            slideInHorizontally(initialOffsetX = {it}, animationSpec = tween(1000)) + fadeIn(animationSpec = tween(1000))
+        },
+        exitTransition = {
+            //{-it} representa el ancho completo negativo (Borde izquierdo)
+            slideOutHorizontally(targetOffsetX = {-it}, animationSpec = tween(1000)) + fadeOut(animationSpec = tween(1000))
+        },
+        popEnterTransition = {
+            slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(1000)) + fadeIn(animationSpec = tween(1000))
+        },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(1000)) + fadeOut(animationSpec = tween(1000))
+        }
     ){
         //Flujo 0: Splash
         composable("splash"){
             SplashScreen()
 
+            val tokenManager = remember { TokenManager(MoodApplication.context) }
+
             //Esperamos 2 segundos (2000 ms) y saltamos al onboarding
             LaunchedEffect(Unit) {
                 delay(1000)
+                val hasToken = !tokenManager.getAccessToken().isNullOrBlank()
+                val nextDestination = if (hasToken)  "main" else "onboarding"
+
                 navController.navigate("onboarding"){
                     // Limpiamos el splash para que al presionar "Atras" no vuelva a aparecer
                     popUpTo("splash") { inclusive = true }
@@ -59,6 +87,11 @@ fun RootNavGraph() {
             LoginScreen(
                 onNavigateToRegister = {
                     navController.navigate("register")
+                },
+                onLoginSuccess = {
+                    navController.navigate("main"){
+                        popUpTo("login") {inclusive = true}
+                    }
                 }
             )
         }
@@ -67,8 +100,11 @@ fun RootNavGraph() {
         composable("register") {
             RegisterScreen(
                 onNavigateToLogin = {
-                    navController.navigate("login"){
-                        navController.popBackStack()
+                    navController.popBackStack()
+                },
+                onRegisterSuccess = {
+                    navController.navigate("main") {
+                        popUpTo("register") {inclusive = true}
                     }
                 }
             )

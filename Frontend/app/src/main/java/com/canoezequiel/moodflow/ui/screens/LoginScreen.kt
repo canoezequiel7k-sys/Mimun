@@ -31,13 +31,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.canoezequiel.moodflow.R
 import com.canoezequiel.moodflow.ui.components.AdditionalIncome
 import com.canoezequiel.moodflow.ui.components.MimunButton
@@ -48,12 +53,23 @@ import com.canoezequiel.moodflow.ui.theme.MimunTextPrimary
 import com.canoezequiel.moodflow.ui.theme.MimunTextSecondary
 import com.canoezequiel.moodflow.ui.theme.MoodFlowTheme
 import com.canoezequiel.moodflow.ui.theme.TESTCOLOR
+import com.canoezequiel.moodflow.ui.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onLoginSuccess: () -> Unit = {},
+    viewModel: AuthViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated){
+            onLoginSuccess()
+        }
+    }
+
     MoodFlowTheme{
         Scaffold(
             topBar = {
@@ -100,34 +116,47 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.weight(1f))
 
                     MimunTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = uiState.email,
+                        onValueChange = viewModel::updateEmail,
                         labelText = "Email",
                         placeHolderText = "Insert your email",
                         isPassword = false,
                         iconOT = Icons.Default.Email,
-                        keyboardOptions = KeyboardOptions.Default,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     MimunTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = uiState.password,
+                        onValueChange = viewModel::updatePassword,
                         labelText = "Password",
                         placeHolderText = "Insert your password",
                         isPassword = true,
                         iconOT = Icons.Default.Lock,
-                        keyboardOptions = KeyboardOptions.Default,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    if (uiState.errorMessage != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = uiState.errorMessage!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.weight(1f))
 
                     MimunButton(
                         text = "Log in",
                         image = Icons.Default.ArrowRightAlt,
+                        onClick = {viewModel.login()},
+                        isLoading = uiState.isLoading,
+                        enabled = !uiState.isLoading,
                         modifier = Modifier.fillMaxWidth()
                     )
 

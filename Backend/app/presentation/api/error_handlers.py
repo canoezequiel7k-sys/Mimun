@@ -12,6 +12,7 @@ from app.domain.errors import (
     EmailAlreadyRegisteredError,
     MoodEntryAlreadyExistsError,
     NotFoundError,
+    RateLimitExceededError,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,11 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AuthenticationError)
     async def _authentication(request: Request, exc: AuthenticationError) -> JSONResponse:
         return _error(401, "UNAUTHORIZED", str(exc), headers={"WWW-Authenticate": "Bearer"})
+
+    @app.exception_handler(RateLimitExceededError)
+    async def _rate_limited(request: Request, exc: RateLimitExceededError) -> JSONResponse:
+        retry_after = {"Retry-After": str(exc.retry_after_seconds)}
+        return _error(429, "TOO_MANY_REQUESTS", str(exc), headers=retry_after)
 
     @app.exception_handler(RequestValidationError)
     async def _request_validation(request: Request, exc: RequestValidationError) -> JSONResponse:

@@ -15,7 +15,7 @@ def test_health_returns_ok(client: TestClient) -> None:
 def test_cors_allows_only_configured_origins(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("CORS_ORIGINS", '["https://mimun.example"]')
+    monkeypatch.setenv("CORS_ORIGINS", "https://mimun.example")
     get_settings.cache_clear()
     try:
         with TestClient(create_app()) as test_client:
@@ -31,7 +31,7 @@ def test_cors_allows_only_configured_origins(
             assert preflight.headers["access-control-allow-origin"] == "https://mimun.example"
 
             rejected = test_client.get(
-                "/api/v1/health", headers={"Origin": "https://other.example"}
+                "/api/v1/health", headers={"Origin": "https://mimun"}
             )
             assert "access-control-allow-origin" not in rejected.headers
     finally:

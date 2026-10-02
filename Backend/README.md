@@ -13,7 +13,7 @@ API REST de Mimun, hecha con **Python + FastAPI + PostgreSQL**, siguiendo **Clea
 
 Con `AUTH_ENABLED=true` los endpoints de datos exigen `Authorization: Bearer <access_token>`. Con `AUTH_ENABLED=false` la API usa un usuario fijo de desarrollo, sin token (así se trabaja la Fase F6 del Frontend). En producción `AUTH_ENABLED=true` es obligatorio y la app se niega a arrancar si no.
 
-**Pendiente:** estadísticas (B5, opcional) y deploy (B9). Falta validar los endpoints desde la app Android (F6).
+**Pendiente:** estadísticas (B5, opcional) y terminar el deploy B9. Falta validar los endpoints desde la app Android (F6).
 
 > Actualizar esta sección cuando cambie el estado real.
 

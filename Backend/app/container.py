@@ -21,6 +21,7 @@ from app.domain.errors import EmailAlreadyRegisteredError
 from app.infrastructure.clock import SystemClock
 from app.infrastructure.config import Settings
 from app.infrastructure.db.session import build_engine, build_session_factory
+from app.infrastructure.rate_limiter import InMemoryRateLimiter
 from app.infrastructure.repositories.journal_entry_repository import (
     SqlAlchemyJournalEntryRepository,
 )
@@ -47,6 +48,7 @@ class Container:
     )
     _token_service: JwtTokenService | None = field(default=None, init=False, repr=False)
     _dev_user_ready: bool = field(default=False, init=False, repr=False)
+    _auth_rate_limiter: InMemoryRateLimiter | None = field(default=None, init=False, repr=False)
 
     @property
     def engine(self) -> Engine:
@@ -73,6 +75,15 @@ class Container:
     @property
     def authenticator(self) -> AuthenticateAccessToken:
         return AuthenticateAccessToken(self.token_service)
+
+    @property
+    def auth_rate_limiter(self) -> InMemoryRateLimiter:
+        if self._auth_rate_limiter is None:
+            self._auth_rate_limiter = InMemoryRateLimiter(
+                max_attempts=self.settings.auth_rate_limit_attempts,
+                window_seconds=self.settings.auth_rate_limit_window_seconds,
+            )
+        return self._auth_rate_limiter
 
     @contextmanager
     def mood_entry_use_cases(self) -> Iterator[MoodEntryUseCases]:

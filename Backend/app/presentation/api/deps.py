@@ -38,3 +38,12 @@ def get_journal_entry_use_cases(request: Request) -> Iterator[JournalEntryUseCas
 def get_auth_use_cases(request: Request) -> Iterator[AuthUseCases]:
     with request.app.state.container.auth_use_cases() as use_cases:
         yield use_cases
+
+
+def enforce_auth_rate_limit(request: Request) -> None:
+    """Limita intentos por IP en los endpoints de autenticación.
+
+    Detrás de un proxy inverso hay que usar la IP real del cliente (ver Fase B9).
+    """
+    client_ip = request.client.host if request.client else "desconocido"
+    request.app.state.container.auth_rate_limiter.check(client_ip)

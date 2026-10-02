@@ -46,3 +46,11 @@ class AuthenticationError(DomainError):
 
     def __init__(self, message: str = "Credenciales inválidas") -> None:
         super().__init__(message)
+
+
+class RateLimitExceededError(DomainError):
+    """Demasiados intentos en una ventana de tiempo."""
+
+    def __init__(self, retry_after_seconds: int) -> None:
+        super().__init__("Demasiados intentos. Probá de nuevo en unos minutos")
+        self.retry_after_seconds = retry_after_seconds

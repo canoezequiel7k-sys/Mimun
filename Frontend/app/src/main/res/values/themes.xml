@@ -2,6 +2,6 @@
 <resources>
     <style name="Theme.MoodFlow" parent="android:Theme.Material.Light.NoActionBar">
         <!-- Esto dibuja tu fondo y tu ícono de forma estática, sin zoom ni recortes -->
-        <item name="android:windowBackground">@drawable/background_splash</item>
+        <item name="android:windowBackground">@color/mimun_background</item>
     </style>
 </resources>

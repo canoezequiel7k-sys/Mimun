@@ -3,12 +3,14 @@ package com.canoezequiel.moodflow.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
@@ -48,12 +50,10 @@ import com.canoezequiel.moodflow.ui.theme.MoodFlowTheme
 import com.canoezequiel.moodflow.ui.theme.TESTCOLOR
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 fun LoginScreen(
-
+    onNavigateToRegister: () -> Unit
 ) {
-
     MoodFlowTheme{
         Scaffold(
             topBar = {
@@ -66,66 +66,82 @@ fun LoginScreen(
             },
             containerColor = MimunBackground,
         ) { innerPadding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
                     .background(MimunBackground)
             ) {
-                Spacer(modifier = Modifier.weight(1f))
-
-                titleAndImage(
-                    title = "Welcome back",
-                    description = "Good to see you again. Take a moment for yourself.",
-                    image = R.drawable.welcome_back,
-                    modifier = Modifier.fillMaxWidth()
+                Image(
+                    painter = painterResource(
+                        R.drawable.ic_one_p
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 40.dp, y = 56.dp),
+                    alpha = 0.4f
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
 
-                MimunTextField(
-                    value = "",
-                    onValueChange = {},
-                    labelText = "Email",
-                    placeHolderText = "Insert your email",
-                    isPassword = false,
-                    iconOT = Icons.Default.Email,
-                    keyboardOptions = KeyboardOptions.Default,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    titleAndImage(
+                        title = "Welcome back",
+                        description = "Good to see you again. Take a moment for yourself.",
+                        image = R.drawable.welcome_back,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                MimunTextField(
-                    value = "",
-                    onValueChange = {},
-                    labelText = "Password",
-                    placeHolderText = "Insert your password",
-                    isPassword = true,
-                    iconOT = Icons.Default.Lock,
-                    keyboardOptions = KeyboardOptions.Default,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    MimunTextField(
+                        value = "",
+                        onValueChange = {},
+                        labelText = "Email",
+                        placeHolderText = "Insert your email",
+                        isPassword = false,
+                        iconOT = Icons.Default.Email,
+                        keyboardOptions = KeyboardOptions.Default,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                MimunButton(
-                    text = "Log in",
-                    image = Icons.Default.ArrowRightAlt,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    MimunTextField(
+                        value = "",
+                        onValueChange = {},
+                        labelText = "Password",
+                        placeHolderText = "Insert your password",
+                        isPassword = true,
+                        iconOT = Icons.Default.Lock,
+                        keyboardOptions = KeyboardOptions.Default,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                AdditionalIncome(
-                    title = "Don't have an account?",
-                    textButton = "Sign up",
-                    accionBurron = {},
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    MimunButton(
+                        text = "Log in",
+                        image = Icons.Default.ArrowRightAlt,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    AdditionalIncome(
+                        title = "Don't have an account?",
+                        textButton = "Sign up",
+                        accionBurron = {onNavigateToRegister()},
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+                }
             }
         }
     }

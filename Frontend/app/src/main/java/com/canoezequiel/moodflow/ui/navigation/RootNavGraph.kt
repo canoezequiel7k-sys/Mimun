@@ -57,32 +57,20 @@ fun RootNavGraph() {
         //Flujo 2: Login
         composable("login"){
             LoginScreen(
-//                //Aqui conectaras tu evento para ir a registro
-//                onNavigateToRegister = {
-//                    navController.navigate("register")
-//                },
-//                //Cuando el login es exitoso, entramos a la app principal
-//                onLoginSuccess = {
-//                    navController.navigate("main") {
-//                        popUpTo("login") {inclusive = true}
-//                    }
-//                }
+                onNavigateToRegister = {
+                    navController.navigate("register")
+                }
             )
         }
 
         //Flujo 3: Registro
         composable("register") {
             RegisterScreen(
-//                //Volver al login si ya tiene cuenta
-//                onBackToLogin = {
-//                    navController.popBackStack()
-//                },
-//                //Si el registro es exitoso, tambien entramos a la app principal
-//                onRegisterSuccess = {
-//                    navController.navigate("main"){
-//                        popUpTo("login") {inclusive = true}
-//                    }
-//                }
+                onNavigateToLogin = {
+                    navController.navigate("login"){
+                        navController.popBackStack()
+                    }
+                }
             )
         }
 

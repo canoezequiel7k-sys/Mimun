@@ -38,10 +38,14 @@ fun AuthContainer(
     }
     //Si esta en RegisterScreen o LoginScreen
     if (isRegistering){
-        RegisterScreen()
+        RegisterScreen(
+            onNavigateToLogin = {}
+        )
 
     } else {
-        LoginScreen()
+        LoginScreen(
+            onNavigateToRegister = {}
+        )
 
     }
 

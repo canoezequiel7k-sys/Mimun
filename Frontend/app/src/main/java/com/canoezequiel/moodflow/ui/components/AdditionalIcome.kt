@@ -19,7 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.canoezequiel.moodflow.R
+import com.canoezequiel.moodflow.ui.theme.MimunTextSecondary
 
 @Composable
 fun AdditionalIncome(
@@ -76,13 +78,18 @@ fun AdditionalIncome(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier.weight(1f))
-            Text(title)
+            Text(
+                text = title,
+                fontSize = 14.sp
+            )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = textButton,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
+                color = MimunTextSecondary,
                 modifier = Modifier
                     .clickable(onClick = {accionBurron()})
             )

@@ -17,6 +17,7 @@ val MimunSage = Color(0xFF8DA08D)
 
 val MimunBackground = Color(0xFFFEF7E4)
 val MimunSurface = Color(0xFFFEFDFB)
+val MimunBackButton = Color(0xFFF4F1E8)
 val MimunSurfaceVariant = Color(0xFFFCF7EB)
 
 val MimunPrimaryContainer = Color(0xFFD8DBCC)
@@ -29,3 +30,5 @@ val MimunBorder = Color(0xFFE6E5D3)
 
 val MimunAccent = Color(0xFFF4CC9B)
 val MimunAccentDark = Color(0xFFE6B77F)
+
+val TESTCOLOR = Color(0xFFFF0000)

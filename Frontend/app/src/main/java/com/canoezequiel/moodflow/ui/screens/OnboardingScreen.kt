@@ -35,6 +35,7 @@ import com.canoezequiel.moodflow.R
 import com.canoezequiel.moodflow.ui.components.OnBoardingPage
 import com.canoezequiel.moodflow.ui.model.OnboardingStep
 import com.canoezequiel.moodflow.ui.model.onboardingSteps
+import com.canoezequiel.moodflow.ui.theme.MimunAccentDark
 import com.canoezequiel.moodflow.ui.theme.MimunBackground
 import com.canoezequiel.moodflow.ui.theme.MimunPrimaryContainer
 import com.canoezequiel.moodflow.ui.theme.MimunSurfaceVariant
@@ -56,7 +57,7 @@ fun OnboardingScreen(
     val targetColor = when (pagerState.currentPage){
         0 -> MimunBackground
         2 -> MimunSurfaceVariant
-        else -> MimunPrimaryContainer
+        else -> MimunAccentDark
     }
 
 

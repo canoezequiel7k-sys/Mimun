@@ -5,7 +5,7 @@ import com.canoezequiel.moodflow.data.local.remote.dto.JournalEntryDto
 import com.canoezequiel.moodflow.data.local.remote.dto.JournalEntryUpsertRequest
 import com.canoezequiel.moodflow.domain.model.JournalEntry
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 fun JournalEntryEntity.toDomain(): JournalEntry {
@@ -33,7 +33,7 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
 }
 
 fun JournalEntry.toUpsertRequest(): JournalEntryUpsertRequest {
-    val editedAtStr = timestamp.toInstant(ZoneOffset.UTC).toString()
+    val editedAtStr = timestamp.atZone(ZoneId.systemDefault()).toInstant().toString()
     return JournalEntryUpsertRequest(
         moodEntryId = moodEntry,
         title = title,
@@ -43,7 +43,7 @@ fun JournalEntry.toUpsertRequest(): JournalEntryUpsertRequest {
 }
 
 fun JournalEntry.toDto(): JournalEntryDto {
-    val editedAtStr = timestamp.toInstant(ZoneOffset.UTC).toString()
+    val editedAtStr = timestamp.atZone(ZoneId.systemDefault()).toInstant().toString()
     return JournalEntryDto(
         id = id,
         title = title,

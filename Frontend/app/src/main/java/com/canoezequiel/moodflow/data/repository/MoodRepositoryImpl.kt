@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 
 /**
  * [MoodRepositoryImpl]
@@ -110,10 +111,17 @@ class MoodRepositoryImpl(
 
         val existingEntity = dao.getMoodEntryByDate(dateString)
 
-        val entryToSave = if (existingEntity != null) {
-            entry.copy(id = existingEntity.id)
-        } else {
-            entry
+        // El backend solo acepta UUID. Conservamos el id del día si ya es un UUID válido;
+        // si no (registros viejos como "mood_entry_2026-10-03"), generamos uno nuevo.
+        val isUuid = { value: String -> runCatching { UUID.fromString(value) }.isSuccess }
+        val stableId = existingEntity?.id?.takeIf(isUuid)
+            ?: entry.id.takeIf(isUuid)
+            ?: UUID.randomUUID().toString()
+        val entryToSave = entry.copy(id = stableId)
+
+        // Si el id cambió, quitamos la fila vieja para no duplicar el día (nunca llegó a sincronizarse).
+        if (existingEntity != null && existingEntity.id != stableId) {
+            dao.deleteMoodEntryPermanently(existingEntity.id)
         }
 
         dao.insertMoodEntry(entryToSave.toEntity())

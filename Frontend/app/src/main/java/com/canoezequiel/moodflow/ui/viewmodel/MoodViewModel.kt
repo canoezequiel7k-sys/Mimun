@@ -68,11 +68,9 @@ class MoodViewModel : ViewModel() {
             MoodType.GOOD
         }
 
-        val todayString = java.time.LocalDate.now().toString()
-
-        // Usamos un ID basado en la fecha para que reemplace el registro de hoy si ya existía
+        // El repositorio decide el id final: conserva el UUID del día o usa este.
         val entry = MoodEntry(
-            id = "mood_entry_$todayString",
+            id = java.util.UUID.randomUUID().toString(),
             moodType = moodType,
             note = _uiState.value.noteText.ifBlank { null }
         )
@@ -81,7 +79,7 @@ class MoodViewModel : ViewModel() {
 
         _uiState.update {
             it.copy(
-                todayEntry = entry,
+                todayEntry = getTodayMoodEntryUseCase() ?: entry,
                 showSuccessMessage = true
             )
         }

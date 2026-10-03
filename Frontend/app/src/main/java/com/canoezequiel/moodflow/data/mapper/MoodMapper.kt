@@ -7,7 +7,7 @@ import com.canoezequiel.moodflow.domain.model.MoodEntry
 import com.canoezequiel.moodflow.domain.model.MoodType
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
@@ -44,7 +44,7 @@ fun MoodEntry.toEntity(): MoodEntryEntity {
 // Transforma Dominio → DTO (para enviar al servidor)
 fun MoodEntry.toUpsertRequest(): MoodEntryUpsertRequest {
     val dateStr = timestamp.toLocalDate().toString()
-    val editedAtStr = timestamp.toInstant(ZoneOffset.UTC).toString()
+    val editedAtStr = timestamp.atZone(ZoneId.systemDefault()).toInstant().toString()
     return MoodEntryUpsertRequest(
         mood = moodType.name,
         date = dateStr,

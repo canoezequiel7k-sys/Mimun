@@ -18,13 +18,17 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,13 +45,15 @@ import com.canoezequiel.moodflow.ui.theme.MimunPrimaryContainer
 import com.canoezequiel.moodflow.ui.theme.MimunSageLight
 import com.canoezequiel.moodflow.ui.theme.MimunSurfaceVariant
 import com.canoezequiel.moodflow.ui.theme.MoodFlowTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(
     onFinishOnboarding:() -> Unit
 ) {
-
+    // Estado local para controlar la carga al presionar "Get Started"
+    var isLoading by remember { mutableStateOf(false) }
     //Instanciamos una corrutina
     val coroutineScope = rememberCoroutineScope()
     //Pagina
@@ -128,19 +134,32 @@ fun OnboardingScreen(
                 Button(
                     onClick = {
                         if (!isLastPage){
-                            //Si no es la ultima pagina, acanza a la siguiente pagina
+                            // Si no es la última página, avanza a la siguiente
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
-                        }else{
-                            //Si es la ultima pagina, entras al login
-                            onFinishOnboarding()
+                        } else if (!isLoading) {
+                            // Si es la última página, mostramos el spinner de inmediato
+                            isLoading = true
+                            coroutineScope.launch {
+                                delay(100) // Breve pausa para asegurar el renderizado del spinner
+                                onFinishOnboarding()
+                            }
                         }
                     },
+                    enabled = !isLoading,
                     modifier = Modifier.fillMaxWidth().height(54.dp),
                     shape = MaterialTheme.shapes.medium
                 ) {
-                    Text(text = buttonText)
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.5.dp
+                        )
+                    } else {
+                        Text(text = buttonText)
+                    }
                 }
             }
         }

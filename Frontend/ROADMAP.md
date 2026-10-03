@@ -4,7 +4,7 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Backend
 
-**Estado global:** 🟢 Fases F1 a F7 terminadas al 100%.
+**Estado global:** 🟢 Fases F1 a F7 terminadas al 100%. F8 en progreso.
 
 > Marcar los checkboxes a medida que se completan. Ajustar los ya marcados según lo que realmente esté hecho en el código.
 
@@ -84,13 +84,13 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 - [x] Pantallas de registro e inicio de sesión (`LoginScreen`, `RegisterScreen`).
 - [x] Almacenamiento seguro de tokens (`TokenManager` con `EncryptedSharedPreferences`).
 - [x] Interceptor de autenticación (`AuthInterceptor`) y refresco automático 401 (`TokenAuthenticator`).
-- [x] Cierre de sesión (`logout`) notificando a la API y limpiando datos locales.
-- [x] Manejo de sesión expirada (`401`).
+- [x] Cierre de sesión (`logout`) notificando a la API y limpiando datos locales (`mood_entries`, `journal_entries`, cursores).
+- [x] Manejo de sesión expirada (`401`) y redirección.
 - [x] Sincronización Push: subir cambios locales pendientes (`PENDING` y tombstones `PENDING_DELETE`).
 - [x] Sincronización Pull: descargar cambios del servidor (`updated_since`) paginado.
-- [x] Resolución de conflictos según la estrategia documentada (`409 MOOD_ENTRY_ALREADY_EXISTS`).
+- [x] Resolución de conflictos según la estrategia documentada (`409 MOOD_ENTRY_ALREADY_EXISTS`) comparando `Instant`.
 - [x] Gestor de sincronización centralizado (`SyncManager` y `SyncPreferences`).
-- [x] Tests de mapeo y sincronización.
+- [x] Tests de mapeo y sincronización (`MoodMapperTest`, `MoodRepositoryTest`, `SyncManagerTest`).
 
 ---
 
@@ -98,9 +98,9 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 - [x] Tests unitarios de mappers (`MoodMapperTest`).
 - [x] Tests unitarios de repositorios y reutilización de ID (`MoodRepositoryTest`).
+- [x] Tests unitarios de sincronización (`SyncManagerTest`).
 - [ ] Tests unitarios de ViewModels y use cases.
 - [ ] Tests de UI con Compose.
-- [ ] Tests de navegación.
 - [ ] Accesibilidad y modo oscuro.
 
 ---
@@ -138,7 +138,7 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 ## 🤖 Reglas para el agente Android
 
 1. Leer el README raíz antes de hacer cambios estructurales.
-2. Trabajar solo dentro de `Frontend/Android/`. No tocar `Backend/` ni `Auth/`.
+2. Trabajar solo dentro de `Frontend/app/`. No tocar `Backend/` ni `Auth/`.
 3. No inventar endpoints: si falta algo, proponerlo en `Docs/api/`.
 4. Respetar las capas: `presentation → domain ← data`.
 5. Mantener los estados emocionales idénticos a los definidos.

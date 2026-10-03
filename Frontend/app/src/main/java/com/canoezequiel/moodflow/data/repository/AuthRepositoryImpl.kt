@@ -1,11 +1,14 @@
 package com.canoezequiel.moodflow.data.repository
 
+import com.canoezequiel.moodflow.MoodApplication
 import com.canoezequiel.moodflow.data.local.auth.TokenManager
+import com.canoezequiel.moodflow.data.local.database.AppDatabase
 import com.canoezequiel.moodflow.data.local.remote.api.ApiService
 import com.canoezequiel.moodflow.data.local.remote.dto.AuthResponse
 import com.canoezequiel.moodflow.data.local.remote.dto.LoginRequest
 import com.canoezequiel.moodflow.data.local.remote.dto.RefreshRequest
 import com.canoezequiel.moodflow.data.local.remote.dto.RegisterRequest
+import com.canoezequiel.moodflow.data.local.sync.SyncPreferences
 import com.canoezequiel.moodflow.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +62,12 @@ class AuthRepositoryImpl(
             }
         }
         tokenManager.clearTokens()
+        try {
+            val db = AppDatabase.getInstance(MoodApplication.context)
+            db.moodEntryDao().deleteAllMoodEntries()
+            db.journalEntryDao().deleteAllJournalEntries()
+            SyncPreferences(MoodApplication.context).clearCursors()
+        } catch (_: Exception) {}
     }
 
     override fun isLoggedIn(): Boolean {

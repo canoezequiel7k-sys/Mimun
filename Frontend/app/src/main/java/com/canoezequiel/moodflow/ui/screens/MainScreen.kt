@@ -21,6 +21,21 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val db = com.canoezequiel.moodflow.data.local.database.AppDatabase.getInstance(com.canoezequiel.moodflow.MoodApplication.context)
+                val syncManager = com.canoezequiel.moodflow.data.remote.sync.SyncManager(
+                    com.canoezequiel.moodflow.data.remote.api.ApiClient.apiService,
+                    db.moodEntryDao(),
+                    db.journalEntryDao(),
+                    com.canoezequiel.moodflow.data.local.sync.SyncPreferences(com.canoezequiel.moodflow.MoodApplication.context)
+                )
+                syncManager.syncAll()
+            } catch (_: Exception) {}
+        }
+    }
+
     Scaffold(
         bottomBar = {
             NavigationBar {

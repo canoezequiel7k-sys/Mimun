@@ -39,6 +39,7 @@ class MoodRepositoryTest {
         override fun deleteMoodEntryPermanently(id: String) { storage.remove(id) }
         override fun getPendingMoodEntries(): List<MoodEntryEntity> = storage.values.filter { it.syncStatus != "SYNCED" }
         override fun markAsSynced(id: String) {}
+        override fun deleteAllMoodEntries() { storage.clear() }
     }
 
     @Test
@@ -47,27 +48,27 @@ class MoodRepositoryTest {
         val fakeDao = FakeMoodEntryDao()
         val repository = MoodRepositoryImpl(fakeDao)
 
-        // 1. Guardamos el primer estado del día con el ID original "id-original-100"
+        // 1. Guardamos el primer estado del día con el ID original UUID válido
         val firstEntry = MoodEntry(
-            id = "id-original-100",
+            id = "123e4567-e89b-12d3-a456-426614174000",
             moodType = MoodType.MEH,
             note = "Mañana regular",
             timestamp = LocalDateTime.of(2026, 10, 3, 9, 0)
         )
         repository.saveMoodEntry(firstEntry)
 
-        // 2. Intentamos guardar un segundo estado para el mismo día asignando un ID nuevo "id-nuevo-999"
+        // 2. Intentamos guardar un segundo estado para el mismo día asignando un ID nuevo
         val secondEntry = MoodEntry(
-            id = "id-nuevo-999",
+            id = "987f6543-e21a-34d2-b654-987654321000",
             moodType = MoodType.RAD,
             note = "Tarde fantástica",
             timestamp = LocalDateTime.of(2026, 10, 3, 18, 0)
         )
         repository.saveMoodEntry(secondEntry)
 
-        // 3. Comprobamos que el ID guardado sea el original "id-original-100"
+        // 3. Comprobamos que el ID guardado sea el original UUID
         val savedInDb = fakeDao.getMoodEntryByDate("2026-10-03")
-        assertEquals("id-original-100", savedInDb?.id)
+        assertEquals("123e4567-e89b-12d3-a456-426614174000", savedInDb?.id)
         assertEquals("RAD", savedInDb?.moodType)
     }
 }

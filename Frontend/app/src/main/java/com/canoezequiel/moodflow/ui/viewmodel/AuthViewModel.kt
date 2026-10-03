@@ -4,10 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.canoezequiel.moodflow.MoodApplication
 import com.canoezequiel.moodflow.data.local.auth.TokenManager
+import com.canoezequiel.moodflow.data.local.database.AppDatabase
+import com.canoezequiel.moodflow.data.local.sync.SyncPreferences
 import com.canoezequiel.moodflow.data.remote.api.ApiClient
+import com.canoezequiel.moodflow.data.remote.sync.SyncManager
 import com.canoezequiel.moodflow.data.repository.AuthRepositoryImpl
 import com.canoezequiel.moodflow.domain.usecase.LoginUseCase
 import com.canoezequiel.moodflow.domain.usecase.RegisterUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,6 +72,18 @@ class AuthViewModel : ViewModel() {
             result.fold(
                 onSuccess = {
                     _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
+                    try {
+                        val db = AppDatabase.getInstance(MoodApplication.context)
+                        val syncManager = SyncManager(
+                            ApiClient.apiService,
+                            db.moodEntryDao(),
+                            db.journalEntryDao(),
+                            SyncPreferences(MoodApplication.context)
+                        )
+                        launch(Dispatchers.IO) {
+                            syncManager.syncAll()
+                        }
+                    } catch (_: Exception) {}
                 },
                 onFailure = { error ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = error.localizedMessage ?: "Error al iniciar sesión") }
@@ -90,6 +106,18 @@ class AuthViewModel : ViewModel() {
             result.fold(
                 onSuccess = {
                     _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
+                    try {
+                        val db = AppDatabase.getInstance(MoodApplication.context)
+                        val syncManager = SyncManager(
+                            ApiClient.apiService,
+                            db.moodEntryDao(),
+                            db.journalEntryDao(),
+                            SyncPreferences(MoodApplication.context)
+                        )
+                        launch(Dispatchers.IO) {
+                            syncManager.syncAll()
+                        }
+                    } catch (_: Exception) {}
                 },
                 onFailure = { error ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = error.localizedMessage ?: "Error al registrarse") }

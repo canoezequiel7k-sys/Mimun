@@ -63,7 +63,7 @@ fun RootNavGraph() {
                 val hasToken = !tokenManager.getAccessToken().isNullOrBlank()
                 val nextDestination = if (hasToken)  "main" else "onboarding"
 
-                navController.navigate("onboarding"){
+                navController.navigate(nextDestination){
                     // Limpiamos el splash para que al presionar "Atras" no vuelva a aparecer
                     popUpTo("splash") { inclusive = true }
                 }

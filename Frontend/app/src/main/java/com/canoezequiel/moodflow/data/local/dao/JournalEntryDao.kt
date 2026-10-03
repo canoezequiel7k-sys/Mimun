@@ -34,4 +34,7 @@ interface JournalEntryDao {
 
     @Query("UPDATE journal_entries SET syncStatus = 'SYNCED' WHERE id = :id")
     fun markAsSynced(id: String)
+
+    @Query("DELETE FROM journal_entries")
+    fun deleteAllJournalEntries()
 }

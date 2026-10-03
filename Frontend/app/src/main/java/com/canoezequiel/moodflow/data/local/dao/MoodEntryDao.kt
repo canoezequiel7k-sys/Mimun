@@ -43,4 +43,7 @@ interface MoodEntryDao {
 
     @Query("UPDATE mood_entries SET syncStatus = 'SYNCED' WHERE id = :id")
     fun markAsSynced(id: String)
+
+    @Query("DELETE FROM mood_entries")
+    fun deleteAllMoodEntries()
 }

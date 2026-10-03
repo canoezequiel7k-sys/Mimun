@@ -78,9 +78,18 @@ class SyncManager(
             val response = api.getMoodEntries(limit = 100, offset = 0)
             val serverConflict = response.items.find { it.date == localEntity.timestamp.take(10) }
             if (serverConflict != null) {
-                val serverEditedAt = serverConflict.editedAt ?: ""
-                val localEditedAt = localEntity.updatedAt
-                if (serverEditedAt >= localEditedAt) {
+                val serverEditedAtStr = serverConflict.editedAt
+                val localEditedAtStr = localEntity.updatedAt
+                val serverInstant = try { serverEditedAtStr?.let { java.time.Instant.parse(it) } } catch (_: Exception) { null }
+                val localInstant = try { localEditedAtStr?.let { java.time.Instant.parse(it) } } catch (_: Exception) { null }
+
+                val isServerNewer = if (serverInstant != null && localInstant != null) {
+                    serverInstant >= localInstant
+                } else {
+                    (serverEditedAtStr ?: "") >= (localEditedAtStr ?: "")
+                }
+
+                if (isServerNewer) {
                     // El servidor gana: adoptamos la versión del servidor
                     moodEntryDao.deleteMoodEntryPermanently(localEntity.id)
                     val syncedEntity = serverConflict.toDomain().toEntity().copy(syncStatus = "SYNCED")

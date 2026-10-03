@@ -4,6 +4,7 @@ import com.canoezequiel.moodflow.MoodApplication
 import com.canoezequiel.moodflow.data.local.auth.TokenManager
 import com.canoezequiel.moodflow.data.local.remote.api.ApiService
 import com.canoezequiel.moodflow.data.remote.auth.AuthInterceptor
+import com.canoezequiel.moodflow.data.remote.auth.TokenAuthenticator
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -28,7 +29,8 @@ object ApiClient {
     //Interceptor para ver las peticiones y respuestas HTTP en el Logcat (muy útil para estudiar)
     private val okHttpClient = OkHttpClient.Builder()
         //Inyectamos el token Bearer en cada peticion saliendo
-        .addInterceptor(AuthInterceptor{tokenManager.getAccessToken()})
+        .addInterceptor(AuthInterceptor { tokenManager.getAccessToken() })
+        .authenticator(TokenAuthenticator(tokenManager, BASE_URL))
         //Registra los logs de red en consola para depuracion (Solo debug)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BASIC

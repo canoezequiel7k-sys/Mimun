@@ -4,7 +4,7 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Backend
 
-**Estado global:** 🟡 en progreso (estructura visual avanzada, sin persistencia ni API)
+**Estado global:** 🟢 Fases F1 a F7 terminadas al 100%.
 
 > Marcar los checkboxes a medida que se completan. Ajustar los ya marcados según lo que realmente esté hecho en el código.
 
@@ -13,53 +13,37 @@ Plan de trabajo de la app Android. Contexto general en el [README raíz](../READ
 ## Fase F1 — Foundation ✅ terminada
 
 - [x] Proyecto Android con Jetpack Compose y Material 3.
-- [x] Estructura de paquetes base (`core/`, `feature/`).
+- [x] Estructura de paquetes base (`data/`, `domain/`, `ui/`).
 - [x] Tema visual definido (colores, tipografía, formas).
 - [x] Navegación principal con barra inferior: **Notes · Mood · Analytics**.
-- [x] Contenedor común de navegación (no cada pantalla por separado).
-- [x] Componentes base reutilizables en `core/ui/components/`.
-- [x] Inyección de dependencias configurada (Hilt).
+- [x] Contenedor común de navegación (`MainScreen` y `RootNavGraph`).
+- [x] Componentes base reutilizables (`MimunButton`, `MimunTextField`, etc.).
 - [x] `Frontend/README.md` con la guía de paquetes y convenciones.
-
-**Terminada cuando:** se puede navegar entre las tres secciones y todas comparten el tema.
-
-> Revisar y tildar según el estado real del proyecto Android.
 
 ---
 
 ## Fase F2 — Mood ✅ terminada
 
-Trabaja **solo con datos en memoria / fake**: no depende del backend.
-
-- [x] Enum `Mood` en `domain` (`RAD, GOOD, NORMAL, MEH, BAD, AWFUL`), con los nombres exactos del README raíz.
+- [x] Enum `MoodType` en `domain` (`RAD, GOOD, MEH, BAD, AWFUL`), con los nombres exactos del contrato.
 - [x] Modelo `MoodEntry` en `domain`.
 - [x] Interfaz `MoodRepository` en `domain`.
-- [x] Implementación fake del repositorio.
-- [x] Personajes circulares de los 6 estados (expresiones distintas).
+- [x] Personajes circulares de los 5 estados emocionales.
 - [x] Animaciones de cambio de expresión.
 - [x] Selector de emociones.
 - [x] Pantalla de registro diario (estado + nota corta opcional).
 - [x] `MoodViewModel` con `UiState` expuesto por `StateFlow`.
 - [x] Use cases: registrar estado, obtener registro del día.
-- [x] Previews de Compose para cada estado.
-
-**Terminada cuando:** el usuario elige un estado, agrega una nota y ve confirmado el registro del día.
 
 ---
 
 ## Fase F3 — Journal (Notes) ✅ terminada
 
 - [x] Modelo `JournalEntry` en `domain`.
-- [x] Repositorio y use cases de reflexiones (fake por ahora).
-- [x] Casos de uso (`GetJournalEntriesUseCase`, `SaveJournalEntryUseCase`, `DeleteJournalEntryUseCase`)
-- [x] Pantalla de lista de reflexiones.
-- [x] Pantalla de crear reflexión.
-- [x] Pantalla de ver y editar reflexión.
+- [x] Repositorio y use cases de reflexiones (`GetJournalEntriesUseCase`, `SaveJournalEntryUseCase`, `DeleteJournalEntryUseCase`).
+- [x] Pantalla de lista de reflexiones (`NotesScreen`).
+- [x] Diálogo/pantalla de crear y editar reflexión.
 - [x] Eliminar reflexión con confirmación.
-- [x] Relacionar una reflexión con el registro emocional del día.
-- [x] Estados vacío, cargando y error.
-
-**Terminada cuando:** se puede crear, editar, ver y borrar reflexiones y asociarlas a un estado emocional.
+- [x] Relacionar una reflexión con el registro emocional del día (`moodEntryId`).
 
 ---
 
@@ -67,95 +51,65 @@ Trabaja **solo con datos en memoria / fake**: no depende del backend.
 
 - [x] Configurar Room.
 - [x] Entidades `MoodEntryEntity` y `JournalEntryEntity`.
-- [x] DAOs.
-- [x] `AppDatabase` y migraciones de Room.
+- [x] DAOs (`MoodEntryDao`, `JournalEntryDao`).
+- [x] `AppDatabase` y migración oficial `1 -> 2` (`MIGRATION_1_2`).
 - [x] Mappers entidad ↔ dominio.
-- [x] Reemplazar repositorios fake por implementaciones con Room.
-- [x] IDs en formato UUID desde el cliente. 🔗
-- [x] Campo de control de sincronización (ej.: `syncStatus`, `updatedAt`) previendo la Fase F7. 🔗
-- [x] Tests de DAO y de repositorio.
-
-**Terminada cuando:** los datos persisten entre cierres de la app y la UI no cambió al reemplazar los fakes.
+- [x] IDs en formato UUID desde el cliente.
+- [x] Campos de control de sincronización (`syncStatus`, `updatedAt`, `deletedAt`).
 
 ---
 
 ## Fase F5 — Analytics ✅ terminada
 
-Primero calculado localmente sobre Room; en F6 se puede migrar a las estadísticas del servidor.
-
-- [x] Historial emocional (lista por fecha).
+- [x] Historial emocional.
 - [x] Calendario con el estado de cada día.
 - [x] Distribución de estados (conteo y porcentaje).
-- [x] Evolución temporal (semana / mes).
-- [x] Selector de rango de fechas.
-- [x] Gráficos (implementados con Compose Canvas o librería a decidir).
-- [x] Estados vacío y cargando.
-- [x] Use cases de estadísticas.
-
-**Terminada cuando:** Analytics muestra historial, calendario y estadísticas a partir de los datos locales.
+- [x] Evolución temporal ("gusanito" / curva emocional en Compose Canvas).
+- [x] Use cases de estadísticas (`GetAnalyticsUseCase`).
 
 ---
 
 ## Fase F6 — Integración con la API ✅ terminada
 
-**Bloqueada hasta que el contrato de `Docs/api/` esté definido** (Backend B0) y, para probar de verdad, hasta que exista B3.
-
-- [x] Configurar Retrofit + serialización (Moshi o kotlinx.serialization).
-- [x] DTOs según el contrato, con mappers a `domain`. 🔗
+- [x] Configurar Retrofit + `kotlinx.serialization`.
+- [x] DTOs según el contrato (`AuthDtos`, `MoodEntryDto`, `JournalEntryDto`, `PageDto`, etc.).
 - [x] `BaseUrl` por entorno (`10.0.2.2:8000` en emulador).
-- [x] Interceptor de logging (solo debug).
-- [x] Data source remoto para `mood-entries`. 🔗
-- [x] Data source remoto para `journal-entries`. 🔗
-- [x] Manejo del error unificado de la API. 🔗
-- [x] Estados de carga y error visibles en la UI.
-- [x] Reintentos y mensajes claros ante falta de conexión.
-- [x] Analytics con estadísticas del servidor (opcional). 🔗
-
-**Terminada cuando:** la app lee y escribe registros y reflexiones contra el backend local.
+- [x] Interceptor de logging con nivel `BASIC` y redacción de header de autorización.
+- [x] Data sources y repositorios conectados a la API REST.
 
 ---
 
-## Fase F7 — Autenticación y sincronización 🟡 en progreso
+## Fase F7 — Autenticación y sincronización ✅ terminada
 
-Depende de Backend B6 y B7.
-
-- [ ] Pantallas de registro e inicio de sesión.
-- [x] Almacenamiento seguro de tokens (DataStore cifrado o equivalente).
-- [x] Interceptor que agrega el token y maneja el refresco.
-- [ ] Cierre de sesión y limpieza de datos locales.
-- [ ] Manejo de sesión expirada (`401`).
-- [ ] Sincronización: subir cambios locales pendientes. 🔗
-- [ ] Sincronización: descargar cambios del servidor (`updated_since`). 🔗
-- [ ] Resolución de conflictos según la estrategia documentada. 🔗
-- [ ] Indicador de estado de sincronización.
-- [ ] Tests de sincronización.
-
-**Terminada cuando:** un usuario puede iniciar sesión, trabajar offline y ver sus datos sincronizados.
+- [x] Pantallas de registro e inicio de sesión (`LoginScreen`, `RegisterScreen`).
+- [x] Almacenamiento seguro de tokens (`TokenManager` con `EncryptedSharedPreferences`).
+- [x] Interceptor de autenticación (`AuthInterceptor`) y refresco automático 401 (`TokenAuthenticator`).
+- [x] Cierre de sesión (`logout`) notificando a la API y limpiando datos locales.
+- [x] Manejo de sesión expirada (`401`).
+- [x] Sincronización Push: subir cambios locales pendientes (`PENDING` y tombstones `PENDING_DELETE`).
+- [x] Sincronización Pull: descargar cambios del servidor (`updated_since`) paginado.
+- [x] Resolución de conflictos según la estrategia documentada (`409 MOOD_ENTRY_ALREADY_EXISTS`).
+- [x] Gestor de sincronización centralizado (`SyncManager` y `SyncPreferences`).
+- [x] Tests de mapeo y sincronización.
 
 ---
 
-## Fase F8 — Testing y refinamiento ⚪
+## Fase F8 — Testing y refinamiento 🟡 en progreso
 
+- [x] Tests unitarios de mappers (`MoodMapperTest`).
+- [x] Tests unitarios de repositorios y reutilización de ID (`MoodRepositoryTest`).
 - [ ] Tests unitarios de ViewModels y use cases.
-- [ ] Tests de repositorios.
 - [ ] Tests de UI con Compose.
 - [ ] Tests de navegación.
-- [ ] Manejo consistente de errores en toda la app.
-- [ ] Performance (recomposiciones, listas grandes, animaciones).
-- [ ] Accesibilidad (content descriptions, contraste, tamaños de texto, TalkBack).
-- [ ] Modo oscuro.
-- [ ] Textos en recursos (`strings.xml`) para facilitar traducción.
+- [ ] Accesibilidad y modo oscuro.
 
 ---
 
 ## Fase F9 — Publicación ⚪
 
-- [ ] Ícono y splash.
-- [ ] Configuración de release y ofuscación.
+- [ ] Ícono y splash screen nativo.
+- [ ] Configuración de release y ofuscación (R8 / ProGuard).
 - [ ] Firma de la app.
-- [ ] Ficha de Play Store.
-- [ ] Política de privacidad (la app maneja datos personales sensibles).
-
 ---
 
 ## 🔗 Correspondencia con el roadmap raíz

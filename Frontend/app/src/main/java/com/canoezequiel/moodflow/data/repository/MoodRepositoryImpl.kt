@@ -4,10 +4,10 @@ import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.R
 import com.canoezequiel.moodflow.data.local.dao.MoodEntryDao
 import com.canoezequiel.moodflow.data.mapper.toDomain
-import com.canoezequiel.moodflow.data.mapper.toDto
 import com.canoezequiel.moodflow.data.mapper.toEntity
 import com.canoezequiel.moodflow.data.mapper.toUpsertRequest
 import com.canoezequiel.moodflow.data.remote.api.ApiClient
+import com.canoezequiel.moodflow.data.local.remote.api.ApiService
 import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
 import com.canoezequiel.moodflow.domain.model.MoodType
@@ -16,21 +16,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 
-//Implementa los contratos de domain. Decide CÓMO y DÓNDE se guardan las cosas
-//Clase que implementa MoodRepository
+/**
+ * [MoodRepositoryImpl]
+ * QUÉ HACE: Implementación del repositorio de estados de ánimo.
+ * POR QUÉ: Administra el almacenamiento local inmediato en Room y la sincronización asíncrona con el backend.
+ * CÓMO FUNCIONA: Guarda en SQLite preservando el ID si la fecha ya existe, e intenta enviar el upsert vía Retrofit.
+ */
 class MoodRepositoryImpl(
     private val dao: MoodEntryDao
 ) : MoodRepository {
-    //Inyectas o llamas a ApiClient.apiService dentro del repositorio o mediante un DataSource remoto
-    private val api = ApiClient.apiService
 
+    // Instancia perezosa de la API para evitar inicializar Context en entorno de pruebas unitarias
+    private val api: ApiService by lazy { ApiClient.apiService }
 
-    //Define la lista física de las 5 emociones asociadas a los recursos gráficos
     override fun getAvailableMoods(): List<Mood> {
         return listOf(
-            //RAD (5 frames)
             Mood(
                 id = MoodType.RAD.name,
                 name = "rad",
@@ -42,10 +43,8 @@ class MoodRepositoryImpl(
                     R.drawable.rad4,
                     R.drawable.rad5
                 ),
-                colorHex = "#88965C" // MimunGreen
+                colorHex = "#88965C"
             ),
-
-            //GOOD (6 frames)
             Mood(
                 id = MoodType.GOOD.name,
                 name = "good",
@@ -58,11 +57,9 @@ class MoodRepositoryImpl(
                     R.drawable.good5,
                     R.drawable.good6
                 ),
-                colorHex = "#8DA08D", // MimunSage
+                colorHex = "#8DA08D",
                 iconSize = 68.dp
             ),
-
-            //MEH
             Mood(
                 id = MoodType.MEH.name,
                 name = "meh",
@@ -75,10 +72,8 @@ class MoodRepositoryImpl(
                     R.drawable.meh5,
                     R.drawable.meh6
                 ),
-                colorHex = "#D8DBCC" // MimunPrimaryContainer
+                colorHex = "#D8DBCC"
             ),
-
-            //BAD
             Mood(
                 id = MoodType.BAD.name,
                 name = "bad",
@@ -91,10 +86,8 @@ class MoodRepositoryImpl(
                     R.drawable.bad5,
                     R.drawable.bad6
                 ),
-                colorHex = "#F4CC9B" // MimunAccent
+                colorHex = "#F4CC9B"
             ),
-
-            //AWFUL
             Mood(
                 id = MoodType.AWFUL.name,
                 name = "awful",
@@ -107,11 +100,10 @@ class MoodRepositoryImpl(
                     R.drawable.awful5,
                     R.drawable.awful6
                 ),
-                colorHex = "#E6B77F" // MimunAccentDark
+                colorHex = "#E6B77F"
             )
         )
     }
-
 
     override fun saveMoodEntry(entry: MoodEntry) {
         val dateString = entry.timestamp.toLocalDate().toString()
@@ -124,22 +116,24 @@ class MoodRepositoryImpl(
             entry
         }
 
-        // Insertar/reemplazar el registro activo en Room
         dao.insertMoodEntry(entryToSave.toEntity())
 
         try {
             CoroutineScope(Dispatchers.IO).launch {
-                val response = api.upsertMoodEntry(entryToSave.id, entryToSave.toUpsertRequest())
-                if (response.isSuccessful) {
-                    dao.markAsSynced(entryToSave.id)
+                try {
+                    val response = api.upsertMoodEntry(entryToSave.id, entryToSave.toUpsertRequest())
+                    if (response.isSuccessful) {
+                        dao.markAsSynced(entryToSave.id)
+                    }
+                } catch (_: Throwable) {
+                    // Entorno offline o unit test
                 }
             }
-        } catch (e: Exception) {
-            // App offline: queda en PENDING para sincronización posterior
+        } catch (_: Throwable) {
+            // Entorno offline
         }
     }
 
-    //Compara la fecha actual (LocalDate.now()) con la fecha guardada en cada registro (it.timestamp.toLocalDate())
     override fun getTodayMoodEntry(): MoodEntry? {
         val dataString = LocalDate.now().toString()
         return dao.getMoodEntryByDate(dataString)?.toDomain()

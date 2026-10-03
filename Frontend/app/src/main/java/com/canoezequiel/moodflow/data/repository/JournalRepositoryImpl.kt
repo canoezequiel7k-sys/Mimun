@@ -1,8 +1,8 @@
 package com.canoezequiel.moodflow.data.repository
 
 import com.canoezequiel.moodflow.data.local.dao.JournalEntryDao
+import com.canoezequiel.moodflow.data.local.remote.api.ApiService
 import com.canoezequiel.moodflow.data.mapper.toDomain
-import com.canoezequiel.moodflow.data.mapper.toDto
 import com.canoezequiel.moodflow.data.mapper.toEntity
 import com.canoezequiel.moodflow.data.mapper.toUpsertRequest
 import com.canoezequiel.moodflow.data.remote.api.ApiClient
@@ -12,59 +12,63 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
-//Implementacion en memoria del repositorio de notas(Fake para desarrollo local)
+/**
+ * [JournalRepositoryImpl]
+ * QUÉ HACE: Implementación del repositorio de reflexiones (diario).
+ * POR QUÉ: Gestiona la persistencia local en Room y las llamadas a la API REST.
+ * CÓMO FUNCIONA: Guarda o realiza borrado lógico en Room y notifica asíncronamente a Retrofit.
+ */
 class JournalRepositoryImpl(
     private val dao: JournalEntryDao
 ) : JournalRepository {
 
-    //Instancia del cliente Api de Retrofit
-    private val api = ApiClient.apiService
+    // Instancia perezosa de la API para evitar inicializar Context en entorno de pruebas unitarias
+    private val api: ApiService by lazy { ApiClient.apiService }
 
-    //Obtiene todas las notas ordenada desde la mas recienta a la mas antigua:
     override fun getAllJournalEntries(): List<JournalEntry> {
         return dao.getAllJournalEntries().map { it.toDomain() }
     }
 
-    //Busca una nota especifica segun su ID
     override fun getJournalEntryById(id: String): JournalEntry? {
         return dao.getJournalEntryById(id)?.toDomain()
     }
 
-    //Guarda una nueva nota o remplaza la existente si tiene el mismo ID (Edicion)
     override fun saveJournalEntry(entry: JournalEntry) {
-        //Guardar primero en Romm(Fuente de la verdad local e inmediata)
         dao.insertJournalEntry(entry.toEntity())
 
-        //Insertar el PUT upsert en el backend en segundo plano (Dispatcher.IO)
         try {
             CoroutineScope(Dispatchers.IO).launch {
-                val response = api.upsertJournalEntry(entry.id, entry.toUpsertRequest())
-                if (!response.isSuccessful) {
-                    // Manejo de error si el servidor rechaza la nota
+                try {
+                    val response = api.upsertJournalEntry(entry.id, entry.toUpsertRequest())
+                    if (response.isSuccessful) {
+                        dao.markAsSynced(entry.id)
+                    }
+                } catch (_: Throwable) {
+                    // Entorno offline o unit test
                 }
             }
-        } catch (e: Exception){
-            // Sin conexión: la nota persiste localmente en Room
+        } catch (_: Throwable) {
+            // Entorno offline
         }
     }
 
-    //Elimina una nota por su ID
     override fun deleteJournalEntry(id: String) {
         val nowIso = java.time.Instant.now().toString()
-        // Borrado lógico local (Tombstone)
         dao.softDeleteJournalEntryById(id, nowIso)
 
         try {
             CoroutineScope(Dispatchers.IO).launch {
-                val response = api.deleteJournalEntry(id)
-                if (response.isSuccessful) {
-                    // Una vez confirmado por el servidor, se elimina físicamente de SQLite
-                    dao.deleteJournalEntryPermanently(id)
+                try {
+                    val response = api.deleteJournalEntry(id)
+                    if (response.isSuccessful) {
+                        dao.deleteJournalEntryPermanently(id)
+                    }
+                } catch (_: Throwable) {
+                    // Entorno offline
                 }
             }
-        } catch (e: Exception) {
-            // Sin conexión: la fila queda como PENDING_DELETE para ser enviada en la sincronización
+        } catch (_: Throwable) {
+            // Entorno offline
         }
     }
 }

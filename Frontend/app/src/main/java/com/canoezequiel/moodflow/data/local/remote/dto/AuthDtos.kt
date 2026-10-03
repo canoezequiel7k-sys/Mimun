@@ -18,6 +18,11 @@ data class RegisterRequest(
     val password: String
 )
 
+@Serializable
+data class RefreshRequest(
+    @SerialName("refresh_token") val refreshToken: String
+)
+
 //Respuesta del servidor al autenticar con exito (contiene los tokens)
 @Serializable
 data class AuthResponse(

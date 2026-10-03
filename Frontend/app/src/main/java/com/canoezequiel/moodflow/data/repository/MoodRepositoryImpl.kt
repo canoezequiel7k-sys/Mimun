@@ -6,6 +6,7 @@ import com.canoezequiel.moodflow.data.local.dao.MoodEntryDao
 import com.canoezequiel.moodflow.data.mapper.toDomain
 import com.canoezequiel.moodflow.data.mapper.toDto
 import com.canoezequiel.moodflow.data.mapper.toEntity
+import com.canoezequiel.moodflow.data.mapper.toUpsertRequest
 import com.canoezequiel.moodflow.data.remote.api.ApiClient
 import com.canoezequiel.moodflow.domain.model.Mood
 import com.canoezequiel.moodflow.domain.model.MoodEntry
@@ -26,7 +27,7 @@ class MoodRepositoryImpl(
     private val api = ApiClient.apiService
 
 
-    //Define la lista física de las 6 emociones asociadas a los recursos gráficos
+    //Define la lista física de las 5 emociones asociadas a los recursos gráficos
     override fun getAvailableMoods(): List<Mood> {
         return listOf(
             //RAD (5 frames)
@@ -115,30 +116,30 @@ class MoodRepositoryImpl(
     override fun saveMoodEntry(entry: MoodEntry) {
         val dateString = entry.timestamp.toLocalDate().toString()
 
-        // 1. Buscamos si ya existe un registro guardado localmente para el día de hoy
+        //Buscamos si ya existe un registro guardado localmente para el día de hoy
         val existingEntity = dao.getMoodEntryByDate(dateString)
 
-        // 2. Si ya existe, PRESERVAMOS SU ID ORIGINAL (evita el 409 Conflict en el backend)
+        //Si ya existe, PRESERVAMOS SU ID ORIGINAL (evita el 409 Conflict en el backend)
         val entryToSave = if (existingEntity != null) {
             entry.copy(id = existingEntity.id)
         } else {
             entry
         }
 
-        // 3. Guardamos localmente en Room (Nuestra fuente de verdad inmediata)
+        //Guardamos localmente en Room (Nuestra fuente de verdad inmediata)
         dao.deleteMoodEntriesByDate(dateString)
         dao.insertMoodEntry(entryToSave.toEntity())
 
-        // 4. Sincronizamos con el backend en segundo plano (Dispatchers.IO)
+        //Sincronizamos con el backend en segundo plano (Dispatchers.IO)
         try {
             CoroutineScope(Dispatchers.IO).launch {
-                val response = api.upsertMoodEntry(entryToSave.id, entryToSave.toDto())
-                if (!response.isSuccessful) { // <-- Corregido isSuccessful
-                    // Manejar error de red o servidor si es necesario
+                val response = api.upsertMoodEntry(entryToSave.id, entryToSave.toUpsertRequest())
+                if (!response.isSuccessful) {
+                    // Manejar error si es necesario
                 }
             }
         } catch (e: Exception) {
-            // App offline: el dato queda seguro en Room y listo para F7
+            // App offline
         }
     }
 
@@ -151,7 +152,4 @@ class MoodRepositoryImpl(
     override fun getAllMoodEntries(): List<MoodEntry> {
         return dao.getAllMoodEntries().map { it.toDomain() }
     }
-
-
-
 }

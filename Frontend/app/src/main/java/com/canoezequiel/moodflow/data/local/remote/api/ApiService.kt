@@ -2,9 +2,13 @@ package com.canoezequiel.moodflow.data.local.remote.api
 
 import com.canoezequiel.moodflow.data.local.remote.dto.AuthResponse
 import com.canoezequiel.moodflow.data.local.remote.dto.JournalEntryDto
+import com.canoezequiel.moodflow.data.local.remote.dto.JournalEntryUpsertRequest
 import com.canoezequiel.moodflow.data.local.remote.dto.LoginRequest
 import retrofit2.http.Query
 import com.canoezequiel.moodflow.data.local.remote.dto.MoodEntryDto
+import com.canoezequiel.moodflow.data.local.remote.dto.MoodEntryUpsertRequest
+import com.canoezequiel.moodflow.data.local.remote.dto.PageDto
+import com.canoezequiel.moodflow.data.local.remote.dto.RefreshRequest
 import com.canoezequiel.moodflow.data.local.remote.dto.RegisterRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -20,13 +24,14 @@ interface ApiService {
     @GET("mood-entries")
     suspend fun getMoodEntries(
         @Query("limit") limit: Int = 100,
-        @Query("offset") offset: Int = 0
-    ): List<MoodEntryDto>
+        @Query("offset") offset: Int = 0,
+        @Query("updated_since") updatedSince: String? = null
+    ): PageDto<MoodEntryDto>
 
     @PUT("mood-entries/{id}")
     suspend fun upsertMoodEntry(
         @Path("id") id: String,
-        @Body entry: MoodEntryDto
+        @Body entry: MoodEntryUpsertRequest
     ): Response<MoodEntryDto>
 
     @DELETE("mood-entries/{id}")
@@ -37,13 +42,14 @@ interface ApiService {
     @GET("journal-entries")
     suspend fun getJournalEntries(
         @Query("limit") limit: Int = 100,
-        @Query("offset") offset: Int = 0
-    ): List<JournalEntryDto>
+        @Query("offset") offset: Int = 0,
+        @Query("updated_since") updatedSince: String? = null
+    ): PageDto<JournalEntryDto>
 
     @PUT("journal-entries/{id}")
     suspend fun upsertJournalEntry(
         @Path("id") id: String,
-        @Body entry: JournalEntryDto
+        @Body entry: JournalEntryUpsertRequest
     ): Response<JournalEntryDto>
 
     @DELETE("journal-entries/{id}")
@@ -58,5 +64,8 @@ interface ApiService {
     suspend fun login(@Body request: LoginRequest): AuthResponse
 
     @POST("auth/refresh")
-    suspend fun refreshToken(@Body refreshToken: String): AuthResponse
+    suspend fun refreshToken(@Body request: RefreshRequest): AuthResponse
+
+    @POST("auth/logout")
+    suspend fun logout(@Body request: RefreshRequest): Response<Unit>
 }

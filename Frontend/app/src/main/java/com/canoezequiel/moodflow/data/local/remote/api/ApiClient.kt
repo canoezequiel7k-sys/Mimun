@@ -31,7 +31,8 @@ object ApiClient {
         .addInterceptor(AuthInterceptor{tokenManager.getAccessToken()})
         //Registra los logs de red en consola para depuracion (Solo debug)
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.BASIC
+            redactHeader("Authorization")
         })
         .build()
 

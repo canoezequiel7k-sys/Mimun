@@ -4,13 +4,13 @@ import com.canoezequiel.moodflow.data.local.dao.JournalEntryDao
 import com.canoezequiel.moodflow.data.mapper.toDomain
 import com.canoezequiel.moodflow.data.mapper.toDto
 import com.canoezequiel.moodflow.data.mapper.toEntity
+import com.canoezequiel.moodflow.data.mapper.toUpsertRequest
 import com.canoezequiel.moodflow.data.remote.api.ApiClient
 import com.canoezequiel.moodflow.domain.model.JournalEntry
 import com.canoezequiel.moodflow.domain.repository.JournalRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 
 
 //Implementacion en memoria del repositorio de notas(Fake para desarrollo local)
@@ -39,9 +39,9 @@ class JournalRepositoryImpl(
         //Insertar el PUT upsert en el backend en segundo plano (Dispatcher.IO)
         try {
             CoroutineScope(Dispatchers.IO).launch {
-                val response = api.upsertJournalEntry(entry.id, entry.toDto())
-                if (!response.isSuccessful){
-                    // Log o manejo de error si el servidor rechaza la nota
+                val response = api.upsertJournalEntry(entry.id, entry.toUpsertRequest())
+                if (!response.isSuccessful) {
+                    // Manejo de error si el servidor rechaza la nota
                 }
             }
         } catch (e: Exception){

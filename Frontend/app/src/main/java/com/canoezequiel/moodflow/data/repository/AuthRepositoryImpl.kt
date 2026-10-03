@@ -4,8 +4,12 @@ import com.canoezequiel.moodflow.data.local.auth.TokenManager
 import com.canoezequiel.moodflow.data.local.remote.api.ApiService
 import com.canoezequiel.moodflow.data.local.remote.dto.AuthResponse
 import com.canoezequiel.moodflow.data.local.remote.dto.LoginRequest
+import com.canoezequiel.moodflow.data.local.remote.dto.RefreshRequest
 import com.canoezequiel.moodflow.data.local.remote.dto.RegisterRequest
 import com.canoezequiel.moodflow.domain.repository.AuthRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -44,7 +48,16 @@ class AuthRepositoryImpl(
     }
 
     override fun logout() {
-        // Cierra sesión limpiando los tokens del almacenamiento cifrado
+        val refreshToken = tokenManager.getRefreshToken()
+        if (!refreshToken.isNullOrBlank()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    apiService.logout(RefreshRequest(refreshToken))
+                } catch (_: Exception) {
+                    // Ignoramos fallos de red al cerrar sesión para garantizar el borrado local
+                }
+            }
+        }
         tokenManager.clearTokens()
     }
 

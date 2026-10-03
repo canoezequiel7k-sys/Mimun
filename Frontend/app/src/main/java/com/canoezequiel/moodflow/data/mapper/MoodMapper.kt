@@ -2,10 +2,12 @@ package com.canoezequiel.moodflow.data.mapper
 
 import com.canoezequiel.moodflow.data.local.entity.MoodEntryEntity
 import com.canoezequiel.moodflow.data.local.remote.dto.MoodEntryDto
+import com.canoezequiel.moodflow.data.local.remote.dto.MoodEntryUpsertRequest
 import com.canoezequiel.moodflow.domain.model.MoodEntry
 import com.canoezequiel.moodflow.domain.model.MoodType
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
@@ -40,14 +42,13 @@ fun MoodEntry.toEntity(): MoodEntryEntity {
 }
 
 // Transforma Dominio → DTO (para enviar al servidor)
-fun MoodEntry.toDto(): MoodEntryDto {
+fun MoodEntry.toUpsertRequest(): MoodEntryUpsertRequest {
     val dateStr = timestamp.toLocalDate().toString()
-    val editedAtStr = timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + "Z"
-    return MoodEntryDto(
-        id = id,
-        moodType = moodType.name,
-        note = note,
+    val editedAtStr = timestamp.toInstant(ZoneOffset.UTC).toString()
+    return MoodEntryUpsertRequest(
+        mood = moodType.name,
         date = dateStr,
+        note = note,
         editedAt = editedAtStr
     )
 }
@@ -57,7 +58,7 @@ fun MoodEntryDto.toDomain(): MoodEntry {
     val parsedDate = LocalDate.parse(date).atStartOfDay()
     return MoodEntry(
         id = id,
-        moodType = try { MoodType.valueOf(moodType) } catch (e: Exception) { MoodType.GOOD },
+        moodType = try { MoodType.valueOf(mood) } catch (e: Exception) { MoodType.GOOD },
         note = note,
         timestamp = parsedDate
     )

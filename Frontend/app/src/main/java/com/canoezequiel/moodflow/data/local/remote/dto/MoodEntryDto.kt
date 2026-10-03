@@ -7,10 +7,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MoodEntryDto(
     val id: String,
-    @SerialName("mood_type") val moodType: String,
+    val mood: String, // RAD, GOOD, MEH, BAD, AWFUL
     val note: String? = null,
     val date: String, //Formato YYYY-MM-DD
     @SerialName("edited_at") val editedAt: String? = null,
     @SerialName("created_at") val createdAt: String? = null,
-    @SerialName("updated_at") val updatedAt: String? = null
+    @SerialName("updated_at") val updatedAt: String? = null,
+    @SerialName("deleted_at") val deletedAt: String? = null
+)
+@Serializable
+data class MoodEntryUpsertRequest(
+    val mood: String,
+    val date: String,
+    val note: String? = null,
+    @SerialName("edited_at") val editedAt: String
 )

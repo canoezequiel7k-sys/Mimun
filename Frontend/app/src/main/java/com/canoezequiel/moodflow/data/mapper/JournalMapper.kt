@@ -1,15 +1,13 @@
 package com.canoezequiel.moodflow.data.mapper
 
-import android.R.attr.id
 import com.canoezequiel.moodflow.data.local.entity.JournalEntryEntity
 import com.canoezequiel.moodflow.data.local.remote.dto.JournalEntryDto
+import com.canoezequiel.moodflow.data.local.remote.dto.JournalEntryUpsertRequest
 import com.canoezequiel.moodflow.domain.model.JournalEntry
-import com.canoezequiel.moodflow.ui.navigation.Screen.Analytics.title
-import kotlinx.serialization.json.JsonNull.content
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-// Convierte una entidad de notas de Room al modelo de Dominio
 fun JournalEntryEntity.toDomain(): JournalEntry {
     return JournalEntry(
         id = id,
@@ -20,7 +18,6 @@ fun JournalEntryEntity.toDomain(): JournalEntry {
     )
 }
 
-// Convierte un modelo de Dominio de notas a una entidad de Room
 fun JournalEntry.toEntity(): JournalEntryEntity {
     val isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     val nowString = LocalDateTime.now().format(isoFormatter)
@@ -35,9 +32,18 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
     )
 }
 
+fun JournalEntry.toUpsertRequest(): JournalEntryUpsertRequest {
+    val editedAtStr = timestamp.toInstant(ZoneOffset.UTC).toString()
+    return JournalEntryUpsertRequest(
+        moodEntryId = moodEntry,
+        title = title,
+        content = content,
+        editedAt = editedAtStr
+    )
+}
 
 fun JournalEntry.toDto(): JournalEntryDto {
-    val editedAtStr = timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + "Z"
+    val editedAtStr = timestamp.toInstant(ZoneOffset.UTC).toString()
     return JournalEntryDto(
         id = id,
         title = title,

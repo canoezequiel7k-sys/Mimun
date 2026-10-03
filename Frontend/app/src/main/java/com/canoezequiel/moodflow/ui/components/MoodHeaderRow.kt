@@ -23,23 +23,22 @@ fun MoodHeaderRow(
     selectedMood: Mood?,
     onMoodSelected: (Mood) -> Unit
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly, // Distribuye el espacio uniformemente
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        items(moods) { mood ->
+        //Al no ser un contenedor perezoso (Lazy), usamos un bucle forEach estándar de Kotlin
+        moods.forEach { mood ->
             val isSelected = mood == selectedMood
 
-            // Animación de escala elástica
             val scale by animateFloatAsState(
                 targetValue = if (isSelected) 1.15f else 1.0f,
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
             )
 
-            // Animación de rotación oscilante en zig-zag
             val rotation by animateFloatAsState(
                 targetValue = if (isSelected) 6f else 0f,
                 animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy)
@@ -47,13 +46,13 @@ fun MoodHeaderRow(
 
             Column(
                 modifier = Modifier
+                    .weight(1f) //EL SECRETO: Divide el ancho total de la pantalla en partes iguales para cada emoción
                     .scale(scale)
                     .rotate(rotation)
                     .clickable { onMoodSelected(mood) }
-                    .padding(8.dp),
+                    .padding(4.dp), // Padding un poco más ajustado para que respiren sin salirse
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Emoji animado (reproduce sus frames al ser seleccionado)
                 AnimatedMoodIcon(
                     frames = mood.frames,
                     defaultIcon = mood.iconRes,
@@ -61,11 +60,11 @@ fun MoodHeaderRow(
                     size = mood.iconSize
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                // Texto debajo del emoji
                 Text(
                     text = mood.name,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1 //Evita que el texto de la emoción salte de línea si es largo
                 )
             }
         }

@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.canoezequiel.moodflow.ui.screens.AnalyticsScreen
 import com.canoezequiel.moodflow.ui.screens.MoodSelectionScreen
 import com.canoezequiel.moodflow.ui.screens.NotesScreen
+import com.canoezequiel.moodflow.ui.theme.MimunSurfaceDark
 
 //El contenedor raiz de navegacion. Contiene la NavigationBar inferior, persiste (Note, Mood, Analytics) y el navhost que intercambia las pantallas.
 @Composable
@@ -38,10 +39,13 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MimunSurfaceDark
+            ) {
                 Screen.items.forEach { screen ->
                     NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
+                        icon = { Icon(screen.icon,
+                            contentDescription = screen.title) },
                         label = { Text(screen.title) },
                         selected = currentRoute == screen.route,
                         onClick = {

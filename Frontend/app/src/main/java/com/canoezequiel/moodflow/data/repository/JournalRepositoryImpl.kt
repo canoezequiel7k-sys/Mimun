@@ -51,16 +51,20 @@ class JournalRepositoryImpl(
 
     //Elimina una nota por su ID
     override fun deleteJournalEntry(id: String) {
-        //Borrar localmente en Room
-        dao.deleteJournalEntryById(id)
+        val nowIso = java.time.Instant.now().toString()
+        // Borrado lógico local (Tombstone)
+        dao.softDeleteJournalEntryById(id, nowIso)
 
-        //Notificar al backend la eliminacion(Borrado logico idempotente)
         try {
             CoroutineScope(Dispatchers.IO).launch {
-                api.deleteJournalEntry(id)
+                val response = api.deleteJournalEntry(id)
+                if (response.isSuccessful) {
+                    // Una vez confirmado por el servidor, se elimina físicamente de SQLite
+                    dao.deleteJournalEntryPermanently(id)
+                }
             }
         } catch (e: Exception) {
-            // Sin conexión
+            // Sin conexión: la fila queda como PENDING_DELETE para ser enviada en la sincronización
         }
     }
 }

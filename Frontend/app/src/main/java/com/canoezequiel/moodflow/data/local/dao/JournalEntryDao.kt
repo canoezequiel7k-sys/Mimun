@@ -10,19 +10,28 @@ import com.canoezequiel.moodflow.data.local.entity.JournalEntryEntity
 @Dao
 interface JournalEntryDao {
 
-    // Consulta todas las reflexiones ordenadas por fecha reciente
-    @Query("SELECT * FROM journal_entries ORDER BY timestamp DESC")
+    // Obtiene solo reflexiones activas (no eliminadas) para la UI
+    @Query("SELECT * FROM journal_entries WHERE deletedAt IS NULL ORDER BY timestamp DESC")
     fun getAllJournalEntries(): List<JournalEntryEntity>
 
-    // Obtiene una nota por su ID único
-    @Query("SELECT * FROM journal_entries WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM journal_entries WHERE id = :id AND deletedAt IS NULL LIMIT 1")
     fun getJournalEntryById(id: String): JournalEntryEntity?
 
-    // Inserta una nueva nota o reemplaza la existente en caso de edición
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertJournalEntry(entry: JournalEntryEntity)
 
-    // Elimina una nota de la base de datos por su ID
+    // Borrado lógico (Tombstone): lo marca como pendiente de borrar para el servidor
+    @Query("UPDATE journal_entries SET syncStatus = 'PENDING_DELETE', deletedAt = :deletedAt WHERE id = :id")
+    fun softDeleteJournalEntryById(id: String, deletedAt: String)
+
+    // Borrado físico definitivo (se ejecuta tras confirmar con el servidor)
     @Query("DELETE FROM journal_entries WHERE id = :id")
-    fun deleteJournalEntryById(id: String)
+    fun deleteJournalEntryPermanently(id: String)
+
+    // Consultas para la sincronización (Tarea 4)
+    @Query("SELECT * FROM journal_entries WHERE syncStatus != 'SYNCED'")
+    fun getPendingJournalEntries(): List<JournalEntryEntity>
+
+    @Query("UPDATE journal_entries SET syncStatus = 'SYNCED' WHERE id = :id")
+    fun markAsSynced(id: String)
 }

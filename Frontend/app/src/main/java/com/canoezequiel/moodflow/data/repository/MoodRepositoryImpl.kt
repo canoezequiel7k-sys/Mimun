@@ -116,30 +116,26 @@ class MoodRepositoryImpl(
     override fun saveMoodEntry(entry: MoodEntry) {
         val dateString = entry.timestamp.toLocalDate().toString()
 
-        //Buscamos si ya existe un registro guardado localmente para el día de hoy
         val existingEntity = dao.getMoodEntryByDate(dateString)
 
-        //Si ya existe, PRESERVAMOS SU ID ORIGINAL (evita el 409 Conflict en el backend)
         val entryToSave = if (existingEntity != null) {
             entry.copy(id = existingEntity.id)
         } else {
             entry
         }
 
-        //Guardamos localmente en Room (Nuestra fuente de verdad inmediata)
-        dao.deleteMoodEntriesByDate(dateString)
+        // Insertar/reemplazar el registro activo en Room
         dao.insertMoodEntry(entryToSave.toEntity())
 
-        //Sincronizamos con el backend en segundo plano (Dispatchers.IO)
         try {
             CoroutineScope(Dispatchers.IO).launch {
                 val response = api.upsertMoodEntry(entryToSave.id, entryToSave.toUpsertRequest())
-                if (!response.isSuccessful) {
-                    // Manejar error si es necesario
+                if (response.isSuccessful) {
+                    dao.markAsSynced(entryToSave.id)
                 }
             }
         } catch (e: Exception) {
-            // App offline
+            // App offline: queda en PENDING para sincronización posterior
         }
     }
 

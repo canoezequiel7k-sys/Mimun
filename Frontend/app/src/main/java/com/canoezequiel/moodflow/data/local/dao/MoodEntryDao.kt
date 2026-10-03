@@ -11,19 +11,36 @@ import com.canoezequiel.moodflow.data.local.entity.MoodEntryEntity
 @Dao
 interface MoodEntryDao {
 
-    //Obtiene todas las entradas ordenadas desde la mas reciente
-    @Query("SELECT * FROM mood_entries ORDER BY timestamp DESC")
+    // Obtiene solo las entradas activas (no eliminadas) para la UI
+    @Query("SELECT * FROM mood_entries WHERE deletedAt IS NULL ORDER BY timestamp DESC")
     fun getAllMoodEntries(): List<MoodEntryEntity>
 
-    //Consulta el registro guardado en un dia especifico (compara los primeros 10 caracteres YYYY-MM-DD)
-    @Query("SELECT * FROM mood_entries WHERE substr(timestamp, 1, 10) = :dateString LIMIT 1")
+    // Consulta el registro guardado en un día específico (no eliminado)
+    @Query("SELECT * FROM mood_entries WHERE substr(timestamp, 1, 10) = :dateString AND deletedAt IS NULL LIMIT 1")
     fun getMoodEntryByDate(dateString: String): MoodEntryEntity?
 
-    //Inserta una entrada o la reemplaza si ya existe en esa misma fecha
+    @Query("SELECT * FROM mood_entries WHERE id = :id LIMIT 1")
+    fun getMoodEntryById(id: String): MoodEntryEntity?
+
+    // Inserta o reemplaza un registro
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMoodEntry(entry: MoodEntryEntity)
 
-    //Elimina cualquier registro existente para la misma fecha (YYYY-MM-DD)
-    @Query("DELETE FROM mood_entries WHERE substr(timestamp, 1, 10) = :dateString")
-    fun deleteMoodEntriesByDate(dateString: String)
+    // Borrado lógico (Tombstone): lo marca como pendiente de borrar para sincronizar
+    @Query("UPDATE mood_entries SET syncStatus = 'PENDING_DELETE', deletedAt = :deletedAt WHERE substr(timestamp, 1, 10) = :dateString")
+    fun softDeleteMoodEntriesByDate(dateString: String, deletedAt: String)
+
+    @Query("UPDATE mood_entries SET syncStatus = 'PENDING_DELETE', deletedAt = :deletedAt WHERE id = :id")
+    fun softDeleteMoodEntryById(id: String, deletedAt: String)
+
+    // Borrado físico definitivo (se ejecuta solo después de confirmación 204/200 del servidor)
+    @Query("DELETE FROM mood_entries WHERE id = :id")
+    fun deleteMoodEntryPermanently(id: String)
+
+    // Consultas para la sincronización (Tarea 4)
+    @Query("SELECT * FROM mood_entries WHERE syncStatus != 'SYNCED'")
+    fun getPendingMoodEntries(): List<MoodEntryEntity>
+
+    @Query("UPDATE mood_entries SET syncStatus = 'SYNCED' WHERE id = :id")
+    fun markAsSynced(id: String)
 }

@@ -13,5 +13,6 @@ data class JournalEntryEntity(
     val timestamp: String,
     val moodEntryId: String?, //ID opcional vinculado a la emocion del día
     val syncStatus: String = "PENDING",
-    val updatedAt: String
+    val updatedAt: String,
+    val deletedAt: String? = null
 )

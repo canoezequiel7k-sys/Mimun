@@ -12,5 +12,6 @@ data class MoodEntryEntity(
     val note: String?,
     val timestamp: String,
     val syncStatus: String = "PENDING", //Prevision para la sincronizacion con el servidor
-    val updatedAt: String
+    val updatedAt: String,
+    val deletedAt: String? = null
 )

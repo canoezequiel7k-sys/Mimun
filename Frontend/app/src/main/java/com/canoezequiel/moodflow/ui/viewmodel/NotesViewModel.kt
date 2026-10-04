@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.canoezequiel.moodflow.MoodApplication
 import com.canoezequiel.moodflow.data.local.database.AppDatabase
 import com.canoezequiel.moodflow.data.repository.JournalRepositoryImpl
+import com.canoezequiel.moodflow.data.repository.MoodRepositoryImpl
 import com.canoezequiel.moodflow.domain.model.JournalEntry
 import com.canoezequiel.moodflow.domain.model.NoteFilter
 import com.canoezequiel.moodflow.domain.usecase.DeleteJournalEntryUseCase
@@ -94,6 +95,11 @@ class NotesViewModel : ViewModel() {
         //Definimos nuestra lista de iconos disponibles en formato String
         val availableIcons = listOf("apple", "great_v2", "sky", "sun")
 
+        // [NUEVO] Obtenemos el estado de ánimo registrado hoy (si existe)
+        val todayMood = MoodRepositoryImpl(
+            AppDatabase.getInstance(MoodApplication.context).moodEntryDao()
+        ).getTodayMoodEntry()
+
         //Si es edición, mantenemos la nota que ya existía. Si es nueva, la creamos con un icono aleatorio.
         val entry = state.editingEntry?.copy(
             title = state.titleInput,
@@ -101,7 +107,8 @@ class NotesViewModel : ViewModel() {
         ) ?: JournalEntry(
             title = state.titleInput,
             content = state.contentInput,
-            icon = availableIcons.random() // Aquí asignamos el icono al azar al crear una nota nueva!
+            icon = availableIcons.random(), // Aquí asignamos el icono al azar al crear una nota nueva!
+            moodEntry = todayMood?.moodType?.name
         )
 
         saveJournalEntryUseCase(entry)

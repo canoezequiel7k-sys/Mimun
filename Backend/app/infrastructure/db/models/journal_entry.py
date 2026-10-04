@@ -30,6 +30,7 @@ class JournalEntryModel(Base):
     mood_entry_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("mood_entries.id", ondelete="SET NULL")
     )
+    icon: Mapped[str | None] = mapped_column(Text)
     title: Mapped[str | None] = mapped_column(Text)
     content: Mapped[str] = mapped_column(Text)
     created_at: Mapped[dt.datetime] = mapped_column(

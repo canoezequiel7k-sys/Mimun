@@ -28,10 +28,13 @@ def _mood(
     )
 
 
-def _journal(user: User, hours: int = 0, mood_entry_id=None) -> JournalEntry:
+def _journal(
+    user: User, hours: int = 0, mood_entry_id=None, icon: str | None = None
+) -> JournalEntry:
     return JournalEntry.create(
         user_id=user.id,
         mood_entry_id=mood_entry_id,
+        icon=icon,
         title=None,
         content="texto",
         now=NOW + hours * HOUR,
@@ -165,13 +168,14 @@ def test_journal_crud_and_filters(session: Session, user: User) -> None:
     mood = _mood(user, 29)
     moods.add(mood)
 
-    linked = _journal(user, hours=1, mood_entry_id=mood.id)
+    linked = _journal(user, hours=1, mood_entry_id=mood.id, icon="sky")
     free = _journal(user, hours=2)
     journals.add(linked)
     journals.add(free)
 
     listed = journals.list_entries(user.id, mood_entry_id=None, limit=10, offset=0)
     assert [e.id for e in listed] == [free.id, linked.id]
+    assert listed[0].icon is None and listed[1].icon == "sky"
     only_linked = journals.list_entries(user.id, mood_entry_id=mood.id, limit=10, offset=0)
     assert [e.id for e in only_linked] == [linked.id]
     assert journals.count_entries(user.id, mood_entry_id=None) == 2

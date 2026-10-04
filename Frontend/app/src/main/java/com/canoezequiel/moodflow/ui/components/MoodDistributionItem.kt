@@ -46,7 +46,7 @@ fun MoodDistributionItem(
                         style = MaterialTheme.typography.titleSmall
                     )
                     Text(
-                        text = "$count días (${String.format("%.1f", percentage)}%)",
+                        text = "$count days (${String.format("%.1f", percentage)}%)",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

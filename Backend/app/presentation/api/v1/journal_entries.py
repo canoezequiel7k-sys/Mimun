@@ -32,6 +32,7 @@ def create_journal_entry(
         CreateJournalEntryCommand(
             user_id=user_id,
             mood_entry_id=body.mood_entry_id,
+            icon=body.icon,
             title=body.title,
             content=body.content,
             id=body.id,
@@ -86,6 +87,7 @@ def upsert_journal_entry(
             user_id=user_id,
             entry_id=entry_id,
             mood_entry_id=body.mood_entry_id,
+            icon=body.icon,
             title=body.title,
             content=body.content,
             created_at=body.created_at,

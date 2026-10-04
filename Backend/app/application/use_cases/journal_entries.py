@@ -17,6 +17,7 @@ class CreateJournalEntryCommand:
     mood_entry_id: UUID | None
     title: str | None
     content: str
+    icon: str | None = None
     id: UUID | None = None
     created_at: dt.datetime | None = None
     edited_at: dt.datetime | None = None
@@ -29,6 +30,7 @@ class UpsertJournalEntryCommand:
     mood_entry_id: UUID | None
     title: str | None
     content: str
+    icon: str | None = None
     created_at: dt.datetime | None = None  # solo se usa al crear
     edited_at: dt.datetime | None = None
 
@@ -76,6 +78,7 @@ class CreateJournalEntry:
         entry = JournalEntry.create(
             user_id=command.user_id,
             mood_entry_id=command.mood_entry_id,
+            icon=command.icon,
             title=command.title,
             content=command.content,
             now=self._clock.now(),
@@ -144,6 +147,7 @@ class UpsertJournalEntry:
             entry = JournalEntry.create(
                 user_id=command.user_id,
                 mood_entry_id=command.mood_entry_id,
+                icon=command.icon,
                 title=command.title,
                 content=command.content,
                 now=now,
@@ -166,6 +170,7 @@ class UpsertJournalEntry:
         _ensure_mood_entry_exists(self._moods, command.user_id, command.mood_entry_id)
         existing.update(
             mood_entry_id=command.mood_entry_id,
+            icon=command.icon,
             title=command.title,
             content=command.content,
             now=now,

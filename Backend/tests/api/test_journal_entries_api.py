@@ -88,6 +88,7 @@ def test_create_returns_201_with_contract_shape(client: TestClient) -> None:
     assert set(data) == {
         "id",
         "mood_entry_id",
+        "icon",
         "title",
         "content",
         "created_at",
@@ -96,6 +97,7 @@ def test_create_returns_201_with_contract_shape(client: TestClient) -> None:
         "deleted_at",
     }
     assert data["mood_entry_id"] is None
+    assert data["icon"] is None
     assert data["created_at"] == "2026-09-29T21:00:00Z"
 
 
@@ -216,6 +218,24 @@ def test_put_replaces_fields_and_can_unlink(
     data = response.json()
     assert data["mood_entry_id"] is None and data["title"] is None
     assert data["content"] == "Editado"
+
+
+def test_put_and_get_preserve_icon_and_mood_entry_link(
+    client: TestClient, mood_repo: FakeMoodEntryRepository
+) -> None:
+    mood_id = _mood_entry_id(mood_repo)
+    created = _create(client, icon="apple").json()
+
+    updated = client.put(
+        f"{BASE}/{created['id']}",
+        json={"mood_entry_id": mood_id, "icon": "great_v2", "content": "Sync"},
+    )
+    assert updated.status_code == 200
+    assert updated.json()["icon"] == "great_v2"
+    assert updated.json()["mood_entry_id"] == mood_id
+
+    listed = client.get(BASE).json()["items"][0]
+    assert listed["icon"] == "great_v2" and listed["mood_entry_id"] == mood_id
 
 
 def test_delete_returns_204_then_404(client: TestClient) -> None:

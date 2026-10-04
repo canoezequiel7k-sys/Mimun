@@ -18,6 +18,7 @@ def _to_model(entry: JournalEntry) -> JournalEntryModel:
         id=entry.id,
         user_id=entry.user_id,
         mood_entry_id=entry.mood_entry_id,
+        icon=entry.icon,
         title=entry.title,
         content=entry.content,
         created_at=entry.created_at,
@@ -32,6 +33,7 @@ def _to_entity(model: JournalEntryModel) -> JournalEntry:
         id=model.id,
         user_id=model.user_id,
         mood_entry_id=model.mood_entry_id,
+        icon=model.icon,
         title=model.title,
         content=model.content,
         created_at=model.created_at,
@@ -116,6 +118,7 @@ class SqlAlchemyJournalEntryRepository:
         if model is None:
             raise NotFoundError(_RESOURCE)
         model.mood_entry_id = entry.mood_entry_id
+        model.icon = entry.icon
         model.title = entry.title
         model.content = entry.content
         model.updated_at = entry.updated_at

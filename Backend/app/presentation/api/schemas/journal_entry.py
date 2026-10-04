@@ -11,6 +11,7 @@ class JournalEntryCreateRequest(BaseModel):
 
     id: UUID | None = None
     mood_entry_id: UUID | None = None
+    icon: str | None = None
     title: str | None = None
     content: str
     created_at: dt.datetime | None = None
@@ -23,6 +24,7 @@ class JournalEntryUpsertRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     mood_entry_id: UUID | None = None
+    icon: str | None = None
     title: str | None = None
     content: str
     created_at: dt.datetime | None = None  # solo se usa al crear
@@ -36,6 +38,7 @@ def _utc(value: dt.datetime) -> dt.datetime:
 class JournalEntryResponse(BaseModel):
     id: UUID
     mood_entry_id: UUID | None
+    icon: str | None
     title: str | None
     content: str
     created_at: dt.datetime
@@ -48,6 +51,7 @@ class JournalEntryResponse(BaseModel):
         return cls(
             id=entry.id,
             mood_entry_id=entry.mood_entry_id,
+            icon=entry.icon,
             title=entry.title,
             content=entry.content,
             created_at=_utc(entry.created_at),

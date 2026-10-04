@@ -14,6 +14,7 @@ Convenciones generales, errores y paginación en [README.md](./README.md).
 {
   "id": "a8d1f0c2-77b3-4b8e-8f0a-52c1e3d94a60",
   "mood_entry_id": "3f2b8c1e-6a4d-4e0b-9c55-1d2a7e9f0b11",
+  "icon": "sun",
   "title": "Sobre el trabajo",
   "content": "Hoy pude cerrar la entrega y me sentí aliviado.",
   "created_at": "2026-09-29T21:10:00Z",
@@ -25,6 +26,7 @@ Convenciones generales, errores y paginación en [README.md](./README.md).
 |---|---|---|
 | `id` | UUID | Lo puede generar el cliente. |
 | `mood_entry_id` | UUID \| null | Registro emocional asociado. Opcional. |
+| `icon` | string \| null | Identificador visual opcional: `apple`, `sun`, `sky` o `great_v2`. |
 | `title` | string \| null | Opcional. Hasta 120 caracteres. |
 | `content` | string | Obligatorio. De 1 a 10.000 caracteres. |
 | `created_at` | instante UTC | Lo asigna el servidor. |
@@ -42,6 +44,7 @@ Una reflexión puede existir sin registro emocional. Varias reflexiones pueden a
 {
   "id": "a8d1f0c2-77b3-4b8e-8f0a-52c1e3d94a60",
   "mood_entry_id": "3f2b8c1e-6a4d-4e0b-9c55-1d2a7e9f0b11",
+  "icon": "sun",
   "title": "Sobre el trabajo",
   "content": "Hoy pude cerrar la entrega y me sentí aliviado."
 }
@@ -99,6 +102,7 @@ Reemplazo completo de los campos editables. Lo que no se envía queda en `null` 
 ```json
 {
   "mood_entry_id": null,
+  "icon": "apple",
   "title": "Sobre el trabajo (editado)",
   "content": "Texto actualizado."
 }

@@ -16,6 +16,7 @@ class JournalEntry:
     id: UUID
     user_id: UUID
     mood_entry_id: UUID | None
+    icon: str | None
     title: str | None
     content: str
     created_at: dt.datetime
@@ -39,11 +40,13 @@ class JournalEntry:
         id: UUID | None = None,
         created_at: dt.datetime | None = None,
         edited_at: dt.datetime | None = None,
+        icon: str | None = None,
     ) -> "JournalEntry":
         return cls(
             id=id if id is not None else uuid4(),
             user_id=user_id,
             mood_entry_id=mood_entry_id,
+            icon=icon,
             title=normalize_optional_text(title, field="title", max_length=MAX_TITLE_LENGTH),
             content=normalize_required_text(
                 content, field="content", max_length=MAX_CONTENT_LENGTH
@@ -61,6 +64,7 @@ class JournalEntry:
         content: str,
         now: dt.datetime,
         edited_at: dt.datetime | None = None,
+        icon: str | None = None,
     ) -> None:
         """Reemplazo completo de los campos editables (y revive la reflexión si estaba borrada).
 
@@ -74,6 +78,7 @@ class JournalEntry:
         )
         edited = resolve_client_instant(edited_at, now, field="edited_at")
         self.mood_entry_id = mood_entry_id
+        self.icon = icon
         self.title = normalized_title
         self.content = normalized_content
         self.updated_at = now

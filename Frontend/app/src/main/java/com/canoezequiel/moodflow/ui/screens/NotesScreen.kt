@@ -119,63 +119,66 @@ fun NotesScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
             ) {
+                // Barra horizontal deslizante para los filtros (LazyRow)
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = uiState.selectedFilter == NoteFilter.ALL,
+                            onClick = { viewModel.setFilter(NoteFilter.ALL) },
+                            label = { Text("Todas") }
+                        )
+                    }
+                    item {
+                        FilterChip(
+                            selected = uiState.selectedFilter == NoteFilter.TODAY,
+                            onClick = { viewModel.setFilter(NoteFilter.TODAY) },
+                            label = { Text("Hoy") }
+                        )
+                    }
+                    item {
+                        FilterChip(
+                            selected = uiState.selectedFilter == NoteFilter.THIS_WEEK,
+                            onClick = { viewModel.setFilter(NoteFilter.THIS_WEEK) },
+                            label = { Text("Esta semana") }
+                        )
+                    }
+                    item {
+                        FilterChip(
+                            selected = uiState.selectedFilter == NoteFilter.THIS_MONTH,
+                            onClick = { viewModel.setFilter(NoteFilter.THIS_MONTH) },
+                            label = { Text("Este mes") }
+                        )
+                    }
+                }
+
+
                 if (uiState.entries.isEmpty()) {
                     //Estado vacio cuando no hay reflexiones
                     Column(
-                        modifier = Modifier,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "\uD83D\uDCDD No reflections yet",
+                            fontSize = 22.sp,
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
                         Text(
                             text = "Press '+' to add a note to your journal.",
+                            fontSize = 16.sp,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
-
-                    // Barra horizontal deslizante para los filtros (LazyRow)
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        item {
-                            FilterChip(
-                                selected = uiState.selectedFilter == NoteFilter.ALL,
-                                onClick = { viewModel.setFilter(NoteFilter.ALL) },
-                                label = { Text("Todas") }
-                            )
-                        }
-                        item {
-                            FilterChip(
-                                selected = uiState.selectedFilter == NoteFilter.TODAY,
-                                onClick = { viewModel.setFilter(NoteFilter.TODAY) },
-                                label = { Text("Hoy") }
-                            )
-                        }
-                        item {
-                            FilterChip(
-                                selected = uiState.selectedFilter == NoteFilter.THIS_WEEK,
-                                onClick = { viewModel.setFilter(NoteFilter.THIS_WEEK) },
-                                label = { Text("Esta semana") }
-                            )
-                        }
-                        item {
-                            FilterChip(
-                                selected = uiState.selectedFilter == NoteFilter.THIS_MONTH,
-                                onClick = { viewModel.setFilter(NoteFilter.THIS_MONTH) },
-                                label = { Text("Este mes") }
-                            )
-                        }
-                    }
-
                     //Lista de tarjetas de notas guardadas
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -186,8 +189,6 @@ fun NotesScreen(
                             JournalCard(
                                 entry = entry,
                                 onCardClick = { viewModel.openDetail(entry) },
-                                onEditClick = { viewModel.openEditForm(entry) },
-                                onDeleteClick = { viewModel.requestDelete(entry) }
                             )
                         }
                     }

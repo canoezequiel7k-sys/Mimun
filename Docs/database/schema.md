@@ -68,6 +68,7 @@ Restricciones e índices:
 | `id` | `uuid` | PK |
 | `user_id` | `uuid` | `NOT NULL`, FK → `users.id` `ON DELETE CASCADE` |
 | `mood_entry_id` | `uuid` | Nulable, FK → `mood_entries.id` `ON DELETE SET NULL` |
+| `icon` | `text` | Nulable. Identificador visual de la nota: `apple`, `sun`, `sky` o `great_v2`. |
 | `title` | `text` | Nulable. `CHECK (char_length(title) <= 120)` |
 | `content` | `text` | `NOT NULL`. `CHECK (char_length(content) BETWEEN 1 AND 10000)` |
 | `created_at` | `timestamptz` | `NOT NULL`, default `now()` |
@@ -119,6 +120,10 @@ En `mood_entries` y `journal_entries`:
 - Nuevos índices `(user_id, updated_at)` en ambas tablas, para la descarga de cambios.
 - Al borrar lógicamente un registro emocional, el repositorio deja `mood_entry_id = NULL` en sus reflexiones y actualiza su `updated_at` (el equivalente al antiguo `ON DELETE SET NULL`).
 - Contrato en [`../api/sync.md`](../api/sync.md).
+
+## Migración `0005`
+
+- Añade `journal_entries.icon` (`text`, nulable) para conservar el identificador visual sincronizado desde Android.
 
 ---
 

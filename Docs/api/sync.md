@@ -21,12 +21,13 @@ Convenciones generales, errores y paginación en [README.md](./README.md). Este 
 
 ## Cambios en los objetos
 
-`MoodEntry` y `JournalEntry` ganan dos campos (siempre presentes):
+`MoodEntry` y `JournalEntry` ganan dos campos (siempre presentes). `JournalEntry` también devuelve `icon` (siempre presente, nullable):
 
 | Campo | Tipo | Notas |
 |---|---|---|
 | `edited_at` | instante UTC | Ver arriba. |
 | `deleted_at` | instante UTC \| null | `null` en registros activos. Solo es no nulo en las respuestas de **descarga** (`updated_since`) y de `PUT` cuando gana un borrado. |
+| `icon` (solo `JournalEntry`) | string \| null | Identificador visual opcional: `apple`, `sun`, `sky` o `great_v2`. Se conserva al crear, actualizar y sincronizar. |
 
 El cliente debe **ignorar campos desconocidos** al deserializar.
 
@@ -39,7 +40,7 @@ El cliente debe **ignorar campos desconocidos** al deserializar.
 Crea o actualiza según el `id`. **Es idempotente**: reenviar lo mismo es seguro.
 
 **`mood-entries`** — body: `mood` (obligatorio), `note`, `date`, `edited_at`.
-**`journal-entries`** — body: `content` (obligatorio), `title`, `mood_entry_id`, `created_at`, `edited_at`.
+**`journal-entries`** — body: `content` (obligatorio), `title`, `icon`, `mood_entry_id`, `created_at`, `edited_at`.
 
 | Situación | Resultado |
 |---|---|

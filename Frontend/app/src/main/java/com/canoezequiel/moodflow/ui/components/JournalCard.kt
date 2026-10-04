@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.R
@@ -34,82 +36,77 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun JournalCard(
     entry: JournalEntry,
-    onCardClick: () -> Unit,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onCardClick: () -> Unit
 ) {
-    // Formato de fecha solo día/mes/año sin hora
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy · HH:mm")
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCardClick() }, //se abre la edición al hacer clic
+            .clickable { onCardClick() }, // Al tocar la tarjeta, abre el detalle completo
         colors = CardDefaults.cardColors(
-            containerColor = MimunSurface
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        shape = RoundedCornerShape(16.dp) // Bordes suaves como en la referencia
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween, // Mantiene separados la izquierda de la derecha
-                verticalAlignment = Alignment.CenterVertically
+            //ICONO ALEATORIO IZQUIERDO
+            Image(
+                painter = painterResource(id = getNoteIconRes(entry.icon)),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+
+            //COLUMNA CENTRAL (Fecha, Título y Contenido)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // --- BLOQUE IZQUIERDO (Icono + Título truncado) ---
-                Row(
-                    modifier = Modifier.weight(1f), // Ocupa el espacio flexible pero deja lugar a los botones
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacio entre el icono y el título
-                ) {
-                    Image(
-                        painter = painterResource(id = getNoteIconRes(entry.icon)),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = entry.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,                              // Obliga a que sea una sola línea
-                        overflow = TextOverflow.Ellipsis           // Agrega "..." si el texto es muy largo
-                    )
-                }
+                // Fecha formateada
+                Text(
+                    text = entry.timestamp.format(formatter),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-                // --- BLOQUE DERECHO (Botones fijos) ---
-                Row {
-                    IconButton(onClick = onEditClick) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
-                    }
-                    IconButton(onClick = onDeleteClick) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
+                // Título de la nota
+                Text(
+                    text = entry.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                // Contenido de la nota (recortado a 2 líneas para la tarjeta)
+                Text(
+                    text = entry.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-            Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = entry.timestamp.format(formatter),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = entry.content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            //Icono del estado de ánimo a la derecha (RAD, GOOD, etc.)
+            val moodRes = getMoodIconRes(entry.moodEntry)
+            if (moodRes != null) {
+                Image(
+                    painter = painterResource(id = moodRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
     }
 }
-
 
 // ------------------------------------------------------------------------//
 // Función auxiliar para convertir el texto del icono a su recurso gráfico //
@@ -121,5 +118,17 @@ fun getNoteIconRes(iconName: String?): Int {
         "sky" -> R.drawable.sky
         "sun" -> R.drawable.sun
         else -> R.drawable.sun // Icono por defecto de respaldo
+    }
+}
+
+// Función auxiliar para obtener el icono de la emoción
+fun getMoodIconRes(moodTypeStr: String?): Int? {
+    return when (moodTypeStr?.uppercase()) {
+        "RAD" -> R.drawable.rad8
+        "GOOD" -> R.drawable.good7
+        "MEH" -> R.drawable.meh4
+        "BAD" -> R.drawable.bad6
+        "AWFUL" -> R.drawable.awful4
+        else -> null
     }
 }

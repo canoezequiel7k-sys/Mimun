@@ -43,11 +43,15 @@ def _mood_entry(repo: FakeMoodEntryRepository, user_id: UUID = USER) -> MoodEntr
 
 
 def _create(
-    use_cases: JournalEntryUseCases, content: str = "texto", mood_entry_id: UUID | None = None
+    use_cases: JournalEntryUseCases,
+    content: str = "texto",
+    mood_entry_id: UUID | None = None,
+    icon: str | None = None,
 ) -> JournalEntry:
     return use_cases.create.execute(
         CreateJournalEntryCommand(
             user_id=USER, mood_entry_id=mood_entry_id, title=None, content=content
+            , icon=icon
         )
     )
 
@@ -58,6 +62,7 @@ def _upsert(
     mood_entry_id: UUID | None = None,
     created_at: dt.datetime | None = None,
     edited_at: dt.datetime | None = None,
+    icon: str | None = None,
 ) -> UpsertJournalEntryCommand:
     return UpsertJournalEntryCommand(
         user_id=USER,
@@ -65,6 +70,7 @@ def _upsert(
         mood_entry_id=mood_entry_id,
         title=None,
         content=content,
+        icon=icon,
         created_at=created_at,
         edited_at=edited_at,
     )
@@ -130,6 +136,15 @@ def test_upsert_creates_with_client_id_and_authoring_time(use_cases: JournalEntr
     assert result.created is True
     assert result.entry.id == client_id and result.entry.created_at == authored
     assert result.entry.updated_at == NOW
+
+
+def test_upsert_persists_icon_on_create_and_update(use_cases: JournalEntryUseCases) -> None:
+    entry_id = uuid4()
+    created = use_cases.upsert.execute(_upsert(entry_id, icon="sun"))
+    assert created.entry.icon == "sun"
+
+    updated = use_cases.upsert.execute(_upsert(entry_id, icon="great_v2"))
+    assert updated.entry.icon == "great_v2"
 
 
 def test_upsert_updates_and_validates_the_mood_entry(

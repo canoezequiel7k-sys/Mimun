@@ -1,10 +1,13 @@
 package com.canoezequiel.moodflow.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,11 +35,13 @@ import com.canoezequiel.moodflow.ui.components.MoodWaveChart
 import com.canoezequiel.moodflow.ui.theme.MimunBackground
 import com.canoezequiel.moodflow.ui.theme.MimunGreen
 import com.canoezequiel.moodflow.ui.viewmodel.AnalyticsViewModel
+import com.canoezequiel.moodflow.ui.viewmodel.AuthViewModel
 
 //Pantalla de grafico y calendario emocional
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalyticsScreen(
+    onLogout: () -> Unit, //Recibe el callback
     viewModel: AnalyticsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -43,9 +49,14 @@ fun AnalyticsScreen(
     // Estado para controlar la pestaña activa (0 = Calendario, 1 = Evolución, 2 = Distribución)
     var selectedTab by remember { mutableStateOf(0) }
 
+    // [NUEVO] Estado para controlar si el menú desplegable de tres puntos está abierto o cerrado
+    var showMenu by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.loadAnalytics()
     }
+    // Instancia del AuthViewModel en tu pantalla
+    val authViewModel: AuthViewModel = viewModel()
 
     Scaffold(
         topBar = {
@@ -68,6 +79,30 @@ fun AnalyticsScreen(
                             .padding(horizontal = 4.dp)
                     )
                 },
+                actions = {
+                    // Botón de 3 puntos
+                    IconButton(onClick = { showMenu = !showMenu }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Menu"
+                        )
+                    }
+
+                    // Menú desplegable (Aquí envolvemos el DropdownMenuItem)
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Log out") },
+                            onClick = {
+                                showMenu = false
+                                authViewModel.logout() // Borra las credenciales en TokenManager
+                                onLogout()             // Salta instantáneamente al Login con transición suave
+                            }
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MimunBackground,
                     navigationIconContentColor = MimunGreen
@@ -75,99 +110,122 @@ fun AnalyticsScreen(
             )
         }
     ) { innerPadding ->
-        // Contenedor principal con un único scroll vertical
-        Column(
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()) // <--- Único scroll de la pantalla
+                .background(MimunBackground)
         ) {
-
-            // Pestañas superiores (Tabs)
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.background,
-                indicator = {},
+            Image(
+                painter = painterResource(
+                    R.drawable.test_background
+                ),
+                contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth() // Ocupa todo el ancho horizontal de la pantalla
+                    .align(Alignment.BottomCenter),
+                contentScale = ContentScale.FillWidth, // Escala la imagen para que coincida exactamente con el ancho
+                alpha = 0.8f
+            )
+
+            // Contenedor principal con un único scroll vertical
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()) // <--- Único scroll de la pantalla
             ) {
-                MimunTab(
-                    text = "Calendar",
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
-                )
 
-                MimunTab(
-                    text = "Evolution",
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
-                )
+                // Pestañas superiores (Tabs)
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    indicator = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    MimunTab(
+                        text = "Calendar",
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 }
+                    )
 
-                MimunTab(
-                    text = "Distribution",
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 }
-                )
-            }
+                    MimunTab(
+                        text = "Evolution",
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 }
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    MimunTab(
+                        text = "Distribution",
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 }
+                    )
+                }
 
-            //Contenido dinámico según la pestaña seleccionada (SIN segundo scroll)
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                when (selectedTab) {
-                    0 -> {
-                        MoodCalendarView(
-                            currentMonth = uiState.currentMonth,
-                            entriesByDate = uiState.summary.entriesByDate,
-                            availableMoods = uiState.availableMoods,
-                            onPreviousMonth = { viewModel.previousMonth() },
-                            onNextMonth = { viewModel.nextMonth() }
-                        )
-                    }
-                    1 -> {
-                        if (uiState.summary.totalEntries > 0) {
-                            MoodWaveChart(
-                                currentMonth = uiState.currentMonth,
-                                entriesByDate = uiState.summary.entriesByDate
-                            )
-                        } else {
-                            Text(
-                                text = "There is not yet enough recorded data regarding the evolution.",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                    2 -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            if (uiState.summary.totalEntries == 0) {
-                                Text(
-                                    text = "There is not yet enough data to calculate the distribution.",
-                                    style = MaterialTheme.typography.bodyMedium
+                Spacer(modifier = Modifier.height(16.dp))
+
+                //Contenido dinámico según la pestaña seleccionada (SIN segundo scroll)
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    Crossfade(targetState = selectedTab, label = "AnalyticsTabTransition") { tab ->
+                        when (tab) {
+                            0 -> {
+                                MoodCalendarView(
+                                    currentMonth = uiState.currentMonth,
+                                    entriesByDate = uiState.summary.entriesByDate,
+                                    availableMoods = uiState.availableMoods,
+                                    onPreviousMonth = { viewModel.previousMonth() },
+                                    onNextMonth = { viewModel.nextMonth() }
                                 )
-                            } else {
-                                // Mostramos el gráfico circular centrado
-                                MoodDonutChart(moodPercentages = uiState.summary.moodPercentages)
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                // Luego listamos las barras de porcentaje individuales que ya tenías
-                                uiState.availableMoods.forEach { mood ->
-                                    val moodType = try { MoodType.valueOf(mood.id) } catch (e: Exception) { null }
-                                    val count = uiState.summary.moodCounts[moodType] ?: 0
-                                    val percentage = uiState.summary.moodPercentages[moodType] ?: 0f
-
-                                    MoodDistributionItem(
-                                        mood = mood,
-                                        count = count,
-                                        percentage = percentage
+                            }
+                            1 -> {
+                                if (uiState.summary.totalEntries > 0) {
+                                    MoodWaveChart(
+                                        currentMonth = uiState.currentMonth,
+                                        entriesByDate = uiState.summary.entriesByDate
                                     )
+                                } else {
+                                    Text(
+                                        text = "There is not yet enough recorded data regarding the evolution.",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
+                            2 -> {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    if (uiState.summary.totalEntries == 0) {
+                                        Text(
+                                            text = "There is not yet enough data to calculate the distribution.",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    } else {
+                                        // Mostramos el gráfico circular centrado
+                                        MoodDonutChart(moodPercentages = uiState.summary.moodPercentages)
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        // Luego listamos las barras de porcentaje individuales que ya tenías
+                                        uiState.availableMoods.forEach { mood ->
+                                            val moodType = try { MoodType.valueOf(mood.id) } catch (e: Exception) { null }
+                                            val count = uiState.summary.moodCounts[moodType] ?: 0
+                                            val percentage = uiState.summary.moodPercentages[moodType] ?: 0f
+
+                                            MoodDistributionItem(
+                                                mood = mood,
+                                                count = count,
+                                                percentage = percentage
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

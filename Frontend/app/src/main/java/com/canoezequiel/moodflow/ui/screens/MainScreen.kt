@@ -17,7 +17,9 @@ import com.canoezequiel.moodflow.ui.theme.MimunSurfaceDark
 
 //El contenedor raiz de navegacion. Contiene la NavigationBar inferior, persiste (Note, Mood, Analytics) y el navhost que intercambia las pantallas.
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onLogout: () -> Unit
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -76,7 +78,7 @@ fun MainScreen() {
                 MoodSelectionScreen()
             }
             composable(Screen.Analytics.route) {
-                AnalyticsScreen()
+                AnalyticsScreen(onLogout = onLogout)
             }
         }
     }

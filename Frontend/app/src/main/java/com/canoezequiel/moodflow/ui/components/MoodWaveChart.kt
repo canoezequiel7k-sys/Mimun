@@ -8,11 +8,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.R // Asegúrate de importar tus recursos
 import com.canoezequiel.moodflow.domain.model.MoodEntry
@@ -40,6 +45,9 @@ fun MoodWaveChart(
         }
     }
 
+    // [EXPLICACIÓN] Estado para guardar las coordenadas (x, y) exactas del último punto de la onda
+    var lastPointPosition by remember { mutableStateOf<Pair<Float, Float>?>(null) }
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MimunSurface
@@ -50,10 +58,10 @@ fun MoodWaveChart(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Tu evolución emocional",
+                text = "Your emotional evolution",
                 style = MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             val lineColor = MaterialTheme.colorScheme.primary
 
@@ -61,7 +69,7 @@ fun MoodWaveChart(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(140.dp)
             ) {
                 //DIBUJO DE LA ONDA CON CANVAS
                 Canvas(
@@ -79,9 +87,17 @@ fun MoodWaveChart(
                         if (entry != null) {
                             val level = getMoodLevel(entry.moodType)
                             val x = (day - 1) * stepX
-                            val y = height - ((level - 1f) / 4f * height)
+                            val paddingTop = 24.dp.toPx()
+                            val paddingBottom = 24.dp.toPx()
+                            val usableHeight = height - paddingTop - paddingBottom
+                            val y = height - paddingBottom - ((level - 1f) / 4f * usableHeight)
                             points.add(Pair(x, y))
                         }
+                    }
+
+                    if (points.isNotEmpty()) {
+                        // [EXPLICACIÓN] Guardamos el último punto visual de la curva
+                        lastPointPosition = points.last()
                     }
 
                     if (points.size >= 2) {
@@ -105,13 +121,21 @@ fun MoodWaveChart(
 
                 //ICONO FLOTANTE EN LA PUNTA (ic_graph)
                 // [POR QUÉ] Simula el detalle orgánico de la referencia visual
-                Image(
-                    painter = painterResource(id = R.drawable.ic_graph),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(Alignment.TopEnd) // Se sitúa en la esquina superior derecha
-                )
+                lastPointPosition?.let { (x, y) ->
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_graph),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .offset {
+                                // Centramos el icono de 32dp restando la mitad en X y un poco más arriba en Y
+                                IntOffset(
+                                    x = (x - 16.dp.toPx()).toInt(),
+                                    y = (y - 16.dp.toPx()).toInt() // Restamos 16.dp (la mitad de 32dp) también en Y para centrarlo
+                                )
+                            }
+                    )
+                }
             }
         }
     }

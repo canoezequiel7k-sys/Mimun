@@ -112,7 +112,13 @@ fun RootNavGraph() {
 
         //Flujo 4: App principal
         composable("main"){
-            MainScreen()
+            MainScreen(
+                onLogout = {
+                    navController.navigate("login"){
+                        popUpTo("main") {inclusive = true} // Borra el historial para que no pueda volver atrás
+                    }
+                }
+            )
         }
     }
 }

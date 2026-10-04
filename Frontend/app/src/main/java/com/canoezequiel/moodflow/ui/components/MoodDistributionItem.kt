@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.canoezequiel.moodflow.domain.model.Mood
+import com.canoezequiel.moodflow.ui.theme.MimunSurface
 
 // Elemento individual para mostrar la barra de porcentaje de cada emoción
 @Composable
@@ -18,7 +19,9 @@ fun MoodDistributionItem(
     percentage: Float
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(
+            containerColor = MimunSurface
+        ),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(

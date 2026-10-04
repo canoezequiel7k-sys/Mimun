@@ -60,7 +60,10 @@ class MoodRepositoryImpl(
                     R.drawable.good3,
                     R.drawable.good4,
                     R.drawable.good5,
-                    R.drawable.good6
+                    R.drawable.good6,
+                    R.drawable.good7,
+                    R.drawable.good8,
+                    R.drawable.good9
                 ),
                 colorHex = "#8DA08D",
                 iconSize = 68.dp

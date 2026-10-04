@@ -1,11 +1,14 @@
 import datetime as dt
+import logging
 from collections.abc import Iterator
+from io import StringIO
 from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
 
 from app.application.use_cases.mood_entries import MoodEntryUseCases
+from app.infrastructure.structured_logging import JsonFormatter
 from app.main import create_app
 from app.presentation.api.deps import get_current_user_id, get_mood_entry_use_cases
 from tests.fakes import FakeClock, FakeMoodEntryRepository
@@ -72,6 +75,46 @@ def test_normal_mood_is_rejected(client: TestClient) -> None:
 
 def test_unknown_field_is_rejected(client: TestClient) -> None:
     assert _create(client, timestamp="2026-09-29T10:00:00").status_code == 422
+
+
+def test_put_validation_logs_field_without_logging_body_values(client: TestClient) -> None:
+    private_note = "nota-privada-441f"
+    output = StringIO()
+    handler = logging.StreamHandler(output)
+    handler.setFormatter(JsonFormatter())
+    logger = logging.getLogger("app")
+    logger.addHandler(handler)
+    try:
+        response = client.put(
+            f"{BASE}/{uuid4()}", json={"mood": "INVALID", "note": private_note}
+        )
+    finally:
+        logger.removeHandler(handler)
+
+    assert response.status_code == 422
+    assert response.json()["error"]["details"][0]["field"] == "mood"
+    assert '"location": "body.mood"' in output.getvalue()
+    assert private_note not in output.getvalue()
+
+
+def test_put_logs_domain_validation_field_for_naive_edited_at(client: TestClient) -> None:
+    entry_id = _create(client).json()["id"]
+    output = StringIO()
+    handler = logging.StreamHandler(output)
+    handler.setFormatter(JsonFormatter())
+    logger = logging.getLogger("app")
+    logger.addHandler(handler)
+    try:
+        response = client.put(
+            f"{BASE}/{entry_id}",
+            json={"mood": "MEH", "edited_at": "2026-10-04T12:00:00"},
+        )
+    finally:
+        logger.removeHandler(handler)
+
+    assert response.status_code == 422
+    assert response.json()["error"]["details"][0]["field"] == "edited_at"
+    assert '"location": "edited_at"' in output.getvalue()
 
 
 def test_note_too_long_is_rejected(client: TestClient) -> None:

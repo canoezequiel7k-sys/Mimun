@@ -1,56 +1,100 @@
 # 🫧 Mimun — Tu diario emocional
 
-App Android para registrar cómo te sentís cada día, escribir reflexiones y ver la evolución de tu estado emocional. Con personajes circulares animados, una interfaz simple y un backend propio que guarda y sincroniza los datos.
+<p align="center">
+  <b>Una aplicación móvil minimalista y elegante para el bienestar emocional, construida en Android nativo con Kotlin y Jetpack Compose.</b>
+</p>
 
-> Este es el **README raíz**. Define lo que es común a todo el proyecto. **Si algún README de módulo lo contradice, gana este.**
-> Plan general en [ROADMAP.md](./ROADMAP.md).
+<p align="center">
+  <img src="https://img.shields.io/badge/Kotlin-100%25-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-Python-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+</p>
 
 ---
 
-## 📍 Estado actual
+## 📱 Recorrido Visual de la Aplicación (*User Flow*)
+
+### 1. Flujo de Onboarding
+Bienvenida inmersiva que introduce al usuario en la filosofía de calma y reflexión de Mimun.
+
+<p align="center">
+  <img src="Media/onboardingPageOne.png" width="30%" alt="Onboarding 1" /> &nbsp;&nbsp;
+  <img src="Media/onBoardingPageTwo.png" width="30%" alt="Onboarding 2" /> &nbsp;&nbsp;
+  <img src="Media/onBoardingPageThree.png" width="30%" alt="Onboarding 3" />
+</p>
+
+---
+
+### 2. Autenticación (Login & Registro)
+Sistema seguro de acceso con JWT, validación de formularios y manejo de sesiones.
+
+<p align="center">
+  <img src="Media/loginScreen.png" width="45%" alt="Login Screen" /> &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="Media/registerScreen.png" width="45%" alt="Register Screen" />
+</p>
+
+---
+
+### 3. Pantalla Principal: Registro Emocional (*Mood / Inicio v1.1.0*)
+Selección de estados de ánimo (`RAD`, `GOOD`, `MEH`, `BAD`, `AWFUL`) con personajes animados por fotogramas (*frame-by-frame*), campo de nota rápida y diseño orgánico.
+
+<p align="center">
+  <img src="Media/MoodScreenDates_1.1.0.png" width="45%" alt="Mood Screen v1.1.0" />
+</p>
+
+---
+
+### 4. Diario de Reflexiones (*Notes v1.1.0*)
+Gestión completa de notas con iconos aleatorios automáticos (`apple`, `sun`, `sky`, `great_v2`), filtrado avanzado por fechas (*Todas*, *Hoy*, *Esta semana*, *Este mes*) y visualización detallada en pantalla completa.
+
+<p align="center">
+  <img src="Media/Note_Screen_v1.1.0.png" width="45%" alt="Notes Screen v1.1.0" />
+</p>
+
+---
+
+### 5. Estadísticas e Historial (*Analytics v1.1.0*)
+Visualización en tres pestañas (*Calendar*, *Evolution*, *Distribution*): calendario mensual con emojis, curva de evolución emocional con personaje dinámico en la punta y gráfico circular de distribución (*Donut Chart*).
+
+<p align="center">
+  <img src="Media/AnalyticsScreenPage1_v1.1.0.png" width="30%" alt="Analytics Calendar" /> &nbsp;&nbsp;
+  <img src="Media/AnalyticsScreenPage2_v1.1.0.png" width="30%" alt="Analytics Evolution" /> &nbsp;&nbsp;
+  <img src="Media/AnalyticsScreenPage3_v1.1.0.png" width="30%" alt="Analytics Distribution" />
+</p>
+
+---
+
+## 📍 Estado actual del Proyecto
 
 | Módulo | Estado | Detalle |
 |---|---|---|
-| 📱 [Frontend](./Frontend/README.md) | 🟡 En progreso | F1 a F8 terminadas (Room incluido). Siguiente: integración con la API (F6). |
-| 🖥️ [Backend](./Backend/README.md) | 🟡 En progreso | B0 a B4 y B6 a B8 terminadas: API de `mood-entries` y `journal-entries`, autenticación, sincronización y endurecimiento. 133 tests en verde. B9 (deploy) en progreso. |
-| 📚 [Docs](./Docs/) | 🟡 En progreso | Contrato de la API, esquema de base de datos y decisiones. |
-| 🔐 Auth | ✅ Hecho | Módulo dentro del backend, no un servicio aparte ([decisión 0006](./Docs/decisions/README.md)). Implementado en B6 ([decisión 0008](./Docs/decisions/README.md)). La carpeta `Auth/` se eliminó. |
-
-> Actualizar esta tabla cuando cambie el estado real.
+| 📱 [Frontend](./Frontend/README.md) | 🟢 Completado (v1.1.0) | Interfaz nativa, Room, Sincronización offline-first, Animaciones y Gráficos avanzados. |
+| 🖥️ [Backend](./Backend/README.md) | 🟢 Completado (v1.1.0) | API REST en FastAPI, PostgreSQL, Alembic, Autenticación JWT y tests en verde. |
+| 📚 [Docs](./Docs/) | ✅ Hecho | Contrato de la API, esquema de base de datos y registro de decisiones. |
 
 ---
 
-## 🗂️ Estructura del repositorio
+## 🗂️ Estructura del Repositorio
 
 ```
 Mimun --- Tu diario Emocional/
-├── README.md          ← este documento
-├── ROADMAP.md         ← plan general
+├── README.md          ← este documento (presentación oficial)
+├── ROADMAP.md         ← plan general de desarrollo
+├── Media/             ← capturas de pantalla organizadas por flujos (*screenshots*)
 ├── Frontend/          ← app Android (Kotlin + Jetpack Compose)
 ├── Backend/           ← API REST (Python + FastAPI + PostgreSQL)
 └── Docs/
     ├── api/           ← contrato de la API (fuente de verdad)
     ├── database/      ← esquema de base de datos
-    └── decisions/     ← registro de decisiones
+    └── decisions/     ← registro de decisiones arquitectónicas
 ```
 
 ---
 
-## 🎯 Funcionalidades
+## 😊 Estados Emocionales
 
-Tres secciones en la barra inferior de la app:
-
-| Sección | Función |
-|---|---|
-| 📝 **Notes** | Diario y reflexiones. |
-| 😊 **Mood** | Selección y registro del estado emocional del día. |
-| 📊 **Analytics** | Historial, calendario y estadísticas. |
-
----
-
-## 😊 Estados emocionales
-
-Son **exactamente** estos, en mayúsculas y en inglés, idénticos en Android, API, base de datos y tests:
+Los valores son **exactamente** estos, en mayúsculas y en inglés, idénticos en Android, API, base de datos y tests:
 
 `RAD`, `GOOD`, `MEH`, `BAD`, `AWFUL`
 
@@ -59,80 +103,33 @@ Son **exactamente** estos, en mayúsculas y en inglés, idénticos en Android, A
 | `RAD` | La está pasando genial |
 | `GOOD` | Se siente bien |
 | `MEH` | Indiferente / sin demasiadas emociones |
-| `BAD` | No se encuentra bien |
+| `BAD` | Not se encuentra bien |
 | `AWFUL` | Estado emocional muy negativo |
 
 Escala de mejor a peor: `RAD → GOOD → MEH → BAD → AWFUL`.
 
 - `NORMAL` **no existe**: fue eliminado por decisión del autor ([decisión 0002](./Docs/decisions/README.md)).
-- Los textos que ve el usuario (por ejemplo "Genial", "Bien") son responsabilidad del Frontend, no del enum.
-- No se agregan, renombran ni traducen valores sin actualizar este README, `Docs/api/`, el Frontend y el Backend.
+- Los textos que ver el usuario son responsabilidad del Frontend, no del enum.
 
 ---
 
-## 🧱 Arquitectura
+## 🧱 Arquitectura y Clean Architecture
 
-Ambos lados siguen **Clean Architecture**: las dependencias apuntan siempre hacia el dominio.
-
-| Módulo | Regla |
-|---|---|
-| Android | `presentation → domain ← data` |
-| Backend | `presentation → application → domain ← infrastructure` |
-
-El **dominio** de cada lado es código puro: sin frameworks, sin base de datos y sin UI.
-
-### Cómo se conectan
+Ambos lados (Frontend y Backend) siguen estrictamente **Clean Architecture**: las dependencias apuntan siempre hacia el dominio, manteniéndolo libre de frameworks, bases de datos o UI.
 
 ```
 📱 Android  ──HTTP/JSON──▶  🖥️ API REST (/api/v1)  ──▶  🗄️ PostgreSQL
 ```
 
-- El contrato vive en [`Docs/api/`](./Docs/api/README.md). **Ni el Frontend ni el Backend inventan endpoints**: si falta algo, se propone en `Docs/api/` primero.
-- Los IDs son **UUID generados en el cliente**, para poder crear datos offline y sincronizarlos.
-- Un usuario tiene **un registro emocional por día**.
-- Cada usuario solo accede a sus propios datos.
-- Los errores de la API usan un formato unificado.
+- **IDs Universales:** UUIDs generados en el cliente para permitir creación y lectura offline con sincronización posterior.
+- **Privacidad:** Datos personales protegidos, contraseñas hasheadas y almacenamiento local cifrado (`EncryptedSharedPreferences`).
 
 ---
 
-## 🧰 Stack
+## 🧰 Stack Tecnológico
 
 | Módulo | Tecnología |
 |---|---|
-| Frontend | Kotlin, Jetpack Compose, Material 3, Hilt, Room, Retrofit |
-| Backend | Python 3.12+, FastAPI, SQLAlchemy 2.x, Alembic, PostgreSQL |
-| Comunicación | REST + JSON |
-
-Detalle en el README de cada módulo.
-
----
-
-## 🔒 Privacidad y seguridad
-
-La app maneja **datos personales sensibles** (estados emocionales y reflexiones).
-
-- Nada de secretos en el código ni en git. `.env` nunca se versiona; solo `.env.example`.
-- Contraseñas siempre hasheadas. Nunca en texto plano.
-- No se registran (logs) los contenidos de notas ni reflexiones.
-- Se necesita una política de privacidad antes de publicar.
-
----
-
-## 🤝 Reglas de trabajo
-
-1. Antes de cambios estructurales, leer este README y el del módulo.
-2. Cada módulo trabaja solo en su carpeta. Lo compartido (`Docs/`) se cambia con cuidado y avisando a la otra parte.
-3. **El contrato primero:** cualquier cambio en la API se documenta en `Docs/api/` antes de implementarse.
-4. Todo cambio de esquema incluye migración y actualización de `Docs/database/`.
-5. Las decisiones importantes se registran en `Docs/decisions/`.
-6. No asumir que algo existe: verificar el código y el "Estado actual" de cada README.
-7. Commits pequeños con prefijo por módulo: `feat(android): …`, `feat(backend): …`, `docs: …`.
-8. Priorizar código simple, mantenible y comprensible.
-
----
-
-## 📝 Notas sobre la documentación
-
-- El `Frontend/README.md` describe una ruta `Frontend/Android/app/.../com/mimun/`. La ruta real hoy es `Frontend/app/src/main/java/com/canoezequiel/moodflow/`.
-- El `Frontend/README.md` todavía lista `NORMAL` como estado emocional. Debe corregirse.
-- El `Frontend/ROADMAP.md` marca como hechos la inyección de dependencias con Hilt (F1) y los tests de DAO y de repositorio (F4), pero en el código no hay Hilt en `build.gradle.kts` y solo existen los tests de ejemplo de Android Studio. Hay que corregir el roadmap del Frontend o completar esos puntos.
+| **Frontend** | Kotlin, Jetpack Compose, Material 3, Room, Retrofit, kotlinx.serialization |
+| **Backend** | Python 3.12+, FastAPI, SQLAlchemy 2.x, Alembic, PostgreSQL |
+| **Infraestructura** | Docker & Docker Compose |

@@ -9,7 +9,7 @@ API REST de Mimun, hecha con **Python + FastAPI + PostgreSQL**, siguiendo **Clea
 
 ## 📍 Estado actual
 
-🟡 **Fases B0 a B4 y B6 a B8 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries`, autenticación y sincronización: 131 tests en verde, migraciones `0001` a `0005` aplicadas.
+🟡 **Fases B0 a B4 y B6 a B8 terminadas.** Funciona el CRUD de `mood-entries` y `journal-entries`, autenticación y sincronización: 133 tests en verde, migraciones `0001` a `0005` aplicadas.
 
 Con `AUTH_ENABLED=true` los endpoints de datos exigen `Authorization: Bearer <access_token>`. Con `AUTH_ENABLED=false` la API usa un usuario fijo de desarrollo, sin token (así se trabaja la Fase F6 del Frontend). En producción `AUTH_ENABLED=true` es obligatorio y la app se niega a arrancar si no.
 

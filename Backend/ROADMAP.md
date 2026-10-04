@@ -4,7 +4,7 @@ Plan de trabajo del backend. Contexto y arquitectura en [README.md](./README.md)
 
 **Leyenda:** ⚪ pendiente · 🟡 en progreso · ✅ terminada · 🔗 requiere coordinar con Frontend
 
-**Estado global:** 🟡 B0 a B4 y B6 a B8 terminadas (CRUD, autenticación, sincronización y endurecimiento; 131 tests en verde). **B9 (deploy) en progreso**. B5 es opcional.
+**Estado global:** 🟡 B0 a B4 y B6 a B8 terminadas (CRUD, autenticación, sincronización y endurecimiento; 133 tests en verde). **B9 (deploy) en progreso**. B5 es opcional.
 
 > Una fase se considera terminada solo cuando todos sus checkboxes están marcados **y** sus tests pasan.
 

@@ -15,7 +15,7 @@ Guía para trabajar con el Backend de Mimun en tu PC y probar la app Android con
 - **Archivo `.env`** en `Backend/`. Si no existe, se crea desde la plantilla:
 
 ```powershell
-cd "C:\Users\SystemAncestral\Documents\Mimun --- Tu diario Emocional\Backend"
+cd <ruta-del-repositorio>\Backend
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
@@ -39,7 +39,7 @@ Valores que importan para trabajar con el Frontend (Fase F6):
 ### Paso 2. Levantar la base de datos (Terminal 1)
 
 ```powershell
-cd "C:\Users\SystemAncestral\Documents\Mimun --- Tu diario Emocional\Backend"
+cd <ruta-del-repositorio>\Backend
 docker compose up -d db
 docker compose ps
 ```
@@ -77,7 +77,7 @@ Uvicorn running on http://127.0.0.1:8000
 Abre una terminal nueva:
 
 ```powershell
-cd "C:\Users\SystemAncestral\Documents\Mimun --- Tu diario Emocional\Backend"
+cd <ruta-del-repositorio>\Backend
 Invoke-RestMethod http://localhost:8000/api/v1/health
 ```
 
@@ -174,7 +174,7 @@ docker exec -it mimun_db psql -U mimun -d mimun -c "CREATE DATABASE mimun_test;"
 ## 7. Alternativa: API y base de datos, ambas en Docker
 
 ```powershell
-cd "C:\Users\SystemAncestral\Documents\Mimun --- Tu diario Emocional\Backend"
+cd <ruta-del-repositorio>\Backend
 docker compose up --build
 ```
 
@@ -216,7 +216,7 @@ docker compose down -v      # ⚠️ BORRA también todos los datos (empezar de 
 
 ```powershell
 # Terminal 1 (se queda abierta con la API)
-cd "C:\Users\SystemAncestral\Documents\Mimun --- Tu diario Emocional\Backend"
+cd <ruta-del-repositorio>\Backend
 docker compose up -d db
 .\.venv\Scripts\Activate.ps1
 alembic upgrade head

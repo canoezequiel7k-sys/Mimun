@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: mimun
       POSTGRES_DB: mimun
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - mimun_pgdata:/var/lib/postgresql/data
     healthcheck:

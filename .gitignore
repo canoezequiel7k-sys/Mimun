@@ -4,6 +4,10 @@
 !.env.example
 *.jks
 *.keystore
+*.p12
+*.pem
+*.key
+keystore.properties
 google-services.json
 
 # Android
@@ -17,6 +21,7 @@ build/
 captures/
 .externalNativeBuild/
 .cxx/
+.kotlin/
 
 # Python
 __pycache__/
@@ -25,7 +30,14 @@ __pycache__/
 venv/
 .pytest_cache/
 .ruff_cache/
+.import_linter_cache/
+.coverage
+htmlcov/
 
 # Sistema
 .DS_Store
 Thumbs.db
+*.log
+*.sqlite
+*.sqlite3
+*.db

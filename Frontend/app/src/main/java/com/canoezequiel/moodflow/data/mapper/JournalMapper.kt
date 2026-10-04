@@ -44,6 +44,7 @@ fun JournalEntry.toUpsertRequest(): JournalEntryUpsertRequest {
         moodEntryId = moodEntry,
         title = title,
         content = content,
+        icon = icon,
         editedAt = editedAtStr
         // Nota: Si tu backend también aceptará icono y emoji,
         // aquí los incluirás en el Request cuando tu otro agente los configure en el servidor.
@@ -57,6 +58,7 @@ fun JournalEntry.toDto(): JournalEntryDto {
         title = title,
         content = content,
         moodEntryId = moodEntry,
+        icon = icon,
         editedAt = editedAtStr
     )
 }
@@ -72,6 +74,7 @@ fun JournalEntryDto.toDomain(): JournalEntry {
         title = title,
         content = content,
         timestamp = parsedTime ?: LocalDateTime.now(),
-        moodEntry = moodEntryId
+        moodEntry = moodEntryId,
+        icon = icon
     )
 }

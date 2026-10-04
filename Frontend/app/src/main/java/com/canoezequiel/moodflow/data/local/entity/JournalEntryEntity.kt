@@ -12,6 +12,8 @@ data class JournalEntryEntity(
     val content: String,
     val timestamp: String,
     val moodEntryId: String?, //ID opcional vinculado a la emocion del día
+    val icon: String? = null, //Columna local para el icono aleatorio
+    val emoji: String? = null, //Columna local para el emoji
     val syncStatus: String = "PENDING",
     val updatedAt: String,
     val deletedAt: String? = null

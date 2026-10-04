@@ -36,13 +36,17 @@ class MoodRepositoryImpl(
             Mood(
                 id = MoodType.RAD.name,
                 name = "rad",
-                iconRes = R.drawable.rad1,
+                iconRes = R.drawable.rad7,
                 frames = listOf(
                     R.drawable.rad1,
                     R.drawable.rad2,
                     R.drawable.rad3,
                     R.drawable.rad4,
-                    R.drawable.rad5
+                    R.drawable.rad5,
+                    R.drawable.rad6,
+                    R.drawable.rad7,
+                    R.drawable.rad8,
+                    R.drawable.rad9
                 ),
                 colorHex = "#88965C"
             ),
@@ -64,42 +68,51 @@ class MoodRepositoryImpl(
             Mood(
                 id = MoodType.MEH.name,
                 name = "meh",
-                iconRes = R.drawable.meh1,
+                iconRes = R.drawable.meh7,
                 frames = listOf(
                     R.drawable.meh1,
                     R.drawable.meh2,
                     R.drawable.meh3,
                     R.drawable.meh4,
                     R.drawable.meh5,
-                    R.drawable.meh6
+                    R.drawable.meh6,
+                    R.drawable.meh7,
+                    R.drawable.meh8,
+                    R.drawable.meh9,
                 ),
                 colorHex = "#D8DBCC"
             ),
             Mood(
                 id = MoodType.BAD.name,
                 name = "bad",
-                iconRes = R.drawable.bad2,
+                iconRes = R.drawable.bad4,
                 frames = listOf(
                     R.drawable.bad1,
                     R.drawable.bad2,
                     R.drawable.bad3,
                     R.drawable.bad4,
                     R.drawable.bad5,
-                    R.drawable.bad6
+                    R.drawable.bad6,
+                    R.drawable.bad7,
+                    R.drawable.bad8,
+                    R.drawable.bad9
                 ),
                 colorHex = "#F4CC9B"
             ),
             Mood(
                 id = MoodType.AWFUL.name,
                 name = "awful",
-                iconRes = R.drawable.awful3,
+                iconRes = R.drawable.awful4,
                 frames = listOf(
                     R.drawable.awful1,
                     R.drawable.awful2,
                     R.drawable.awful3,
                     R.drawable.awful4,
                     R.drawable.awful5,
-                    R.drawable.awful6
+                    R.drawable.awful6,
+                    R.drawable.awful7,
+                    R.drawable.awful8,
+                    R.drawable.awful9
                 ),
                 colorHex = "#E6B77F"
             )

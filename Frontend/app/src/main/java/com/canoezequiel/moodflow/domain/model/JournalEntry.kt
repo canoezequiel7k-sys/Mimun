@@ -10,5 +10,7 @@ data class JournalEntry(
     val title: String,
     val content: String,
     val timestamp: LocalDateTime = LocalDateTime.now(),
-    val moodEntry: String? = null //ID opcional para relfexionar con la emocion del dia.
+    val moodEntry: String? = null, //ID opcional para relfexionar con la emocion del dia.
+    val icon: String? = null, //Identificador del icono aleatorio asignado
+    val emoji: String? = null //Emoji representativo de la nota
 )

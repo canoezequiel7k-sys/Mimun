@@ -39,6 +39,16 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(DomainValidationError)
     async def _domain_validation(request: Request, exc: DomainValidationError) -> JSONResponse:
+        logger.warning(
+            "domain_validation_failed",
+            extra={
+                "method": request.method,
+                "path": request.url.path,
+                "validation_errors": [
+                    {"location": exc.field, "type": "domain_validation", "message": exc.message}
+                ],
+            },
+        )
         details = [{"field": exc.field, "message": exc.message}]
         return _error(422, "VALIDATION_ERROR", "Datos inválidos", details)
 
@@ -74,6 +84,22 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _request_validation(request: Request, exc: RequestValidationError) -> JSONResponse:
+        validation_errors = [
+            {
+                "location": ".".join(str(part) for part in err["loc"]),
+                "type": err["type"],
+                "message": err["msg"],
+            }
+            for err in exc.errors()
+        ]
+        logger.warning(
+            "request_validation_failed",
+            extra={
+                "method": request.method,
+                "path": request.url.path,
+                "validation_errors": validation_errors,
+            },
+        )
         details = []
         for err in exc.errors():
             loc = err["loc"]

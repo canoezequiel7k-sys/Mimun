@@ -23,6 +23,5 @@ data class JournalEntryUpsertRequest(
     val title: String,
     val content: String,
     val icon: String? = null,
-    @SerialName("created_at") val createdAt: String? = null,
     @SerialName("edited_at") val editedAt: String
 )

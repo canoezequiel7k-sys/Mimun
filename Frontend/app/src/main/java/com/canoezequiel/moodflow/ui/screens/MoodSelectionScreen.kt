@@ -144,7 +144,8 @@ fun MoodSelectionScreen(
                     placeholder = {
                         Text(
                             text = "✎ Do you want to add a note for the day?",
-                            color = TESTCOLOR
+                            color = MimunTextSecondary,
+                            fontWeight = FontWeight.SemiBold
                         )
                     },
                     maxLines = 4,

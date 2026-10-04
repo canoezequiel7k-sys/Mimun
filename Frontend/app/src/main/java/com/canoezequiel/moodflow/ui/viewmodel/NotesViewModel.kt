@@ -38,9 +38,31 @@ class NotesViewModel : ViewModel() {
     private val saveJournalEntryUseCase = SaveJournalEntryUseCase(repository)
     private val deleteJournalEntryUseCase = DeleteJournalEntryUseCase(repository)
 
-    private val _uiState = MutableStateFlow(NotesUiState(entries = getJournalEntriesUseCase()))
+    private val _uiState = MutableStateFlow(NotesUiState(entries = getEnrichedEntries()))
     val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
 
+    /**
+     * [getEnrichedEntries]
+     * QUÉ HACE: Recupera las notas de la base de datos local y las "enriquece" buscando el tipo de emoción (moodType)
+     *           en la tabla de Room usando el UUID guardado en `moodEntry`.
+     * POR QUÉ: Cuando las notas se descargan desde la nube mediante el SyncManager, el servidor devuelve el `mood_entry_id`
+     *           pero no el campo visual `emoji`. Esta función resuelve esa relación localmente para que la carita
+     *           nunca desaparezca de la tarjeta, sin importar si se recargó la sesión o se cambió de cuenta.
+     */
+    private fun getEnrichedEntries(): List<JournalEntry> {
+        val rawEntries = getJournalEntriesUseCase()
+        val moodDao = AppDatabase.getInstance(MoodApplication.context).moodEntryDao()
+
+        return rawEntries.map { entry ->
+            if (!entry.moodEntry.isNullOrBlank() && entry.emoji.isNullOrBlank()) {
+                val moodEntity = moodDao.getMoodEntryById(entry.moodEntry)
+                // Inyectamos temporalmente el moodType ("GOOD", "RAD", etc.) para que la UI pinte la carita correcta
+                entry.copy(emoji = moodEntity?.moodType)
+            } else {
+                entry
+            }
+        }
+    }
 
     //Abre el formulario para crea una nueva nota
     fun openCreateForm(){
@@ -95,26 +117,26 @@ class NotesViewModel : ViewModel() {
         //Definimos nuestra lista de iconos disponibles en formato String
         val availableIcons = listOf("apple", "great_v2", "sky", "sun")
 
-        // [NUEVO] Obtenemos el estado de ánimo registrado hoy (si existe)
+        // Obtenemos el estado de ánimo registrado hoy (si existe)
         val todayMood = MoodRepositoryImpl(
             AppDatabase.getInstance(MoodApplication.context).moodEntryDao()
         ).getTodayMoodEntry()
 
-        //Si es edición, mantenemos la nota que ya existía. Si es nueva, la creamos con un icono aleatorio.
         val entry = state.editingEntry?.copy(
             title = state.titleInput,
             content = state.contentInput
         ) ?: JournalEntry(
             title = state.titleInput,
             content = state.contentInput,
-            icon = availableIcons.random(), // Aquí asignamos el icono al azar al crear una nota nueva!
-            moodEntry = todayMood?.moodType?.name
+            icon = availableIcons.random(),
+            moodEntry = todayMood?.id,        // UUID válido para que el backend no rechace la nota
+            emoji = todayMood?.moodType?.name // Nombre ("GOOD", "RAD") para pintar el icono en la tarjeta
         )
 
         saveJournalEntryUseCase(entry)
         _uiState.update {
             it.copy(
-                entries = getJournalEntriesUseCase(),
+                entries = getEnrichedEntries(),
                 isFormOpen = false,
                 editingEntry = null
             )
@@ -139,7 +161,7 @@ class NotesViewModel : ViewModel() {
         deleteJournalEntryUseCase(id)
         _uiState.update {
             it.copy(
-                entries = getJournalEntriesUseCase(),
+                entries = getEnrichedEntries(),
                 entryToDelete = null
             )
         }
@@ -157,7 +179,7 @@ class NotesViewModel : ViewModel() {
 
     // Cambia el filtro activo y filtra la lista de notas en tiempo real
     fun setFilter(filter: NoteFilter) {
-        val allEntries = getJournalEntriesUseCase()
+        val allEntries = getEnrichedEntries()
 
         val filteredEntries = when (filter) {
             NoteFilter.ALL -> allEntries

@@ -96,7 +96,7 @@ fun JournalCard(
             }
 
             //Icono del estado de ánimo a la derecha (RAD, GOOD, etc.)
-            val moodRes = getMoodIconRes(entry.moodEntry)
+            val moodRes = getMoodIconRes(entry.emoji) // Leemos 'entry.emoji'
             if (moodRes != null) {
                 Image(
                     painter = painterResource(id = moodRes),

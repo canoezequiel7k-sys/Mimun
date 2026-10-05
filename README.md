@@ -108,9 +108,6 @@ Los valores son **exactamente** estos, en mayúsculas y en inglés, idénticos e
 
 Escala de mejor a peor: `RAD → GOOD → MEH → BAD → AWFUL`.
 
-- `NORMAL` **no existe**: fue eliminado por decisión del autor ([decisión 0002](./Docs/decisions/README.md)).
-- Los textos que ver el usuario son responsabilidad del Frontend, no del enum.
-
 ---
 
 ## 🧱 Arquitectura y Clean Architecture
